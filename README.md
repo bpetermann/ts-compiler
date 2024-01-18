@@ -1,3 +1,3 @@
-# TS Compiler
+## TypeScript Compiler
 
-Writing a compiler in TS
+Writing a compiler in TypeScript
