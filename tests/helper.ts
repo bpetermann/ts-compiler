@@ -1,7 +1,7 @@
-import { Environment } from '../lib/object';
+import { Environment, Integer } from '../lib/object';
+import { Object, ObjectType } from '../types';
 import { Parser } from '../lib/parser';
 import { Program } from '../lib/ast';
-import { Object } from '../types';
 import { Eval } from '../lib/eval';
 
 const cleanInspect = (obj: Object) => {
@@ -24,12 +24,18 @@ const parseAndEval = (input: string, pos?: number) => {
 };
 
 const testInstructions = (expected: ArrayBuffer[], actual: ArrayBuffer) => {
-  const expectedArray = concatInstructions(expected);
+  const concatted = concatInstructions(expected);
   const actualArray = [...new Uint8Array(actual)];
 
-  expectedArray.forEach((item, i) => {
+  if (concatted.length !== actualArray.length) {
+    throw Error(`wrong instructions length.`);
+  }
+
+  concatted.forEach((item, i) => {
     if (!(item === actualArray[i])) {
-      throw Error(`wrong instruction at ${i}`);
+      throw Error(
+        `wrong instruction at ${i}. Want${item} got ${actualArray[i]}`
+      );
     }
   });
 };
@@ -40,6 +46,25 @@ const concatInstructions = (instructions: ArrayBuffer[]) => {
     .flat();
 };
 
+const testIntegerObject = (expected: Object, actual: Object) =>
+  expected.type() === ObjectType.INTEGER_OBJ &&
+  actual.type() === ObjectType.INTEGER_OBJ &&
+  (expected as Integer).value === (actual as Integer).value;
+
+const testConstants = (expected: Object[], actual: Object[]) => {
+  expected.forEach((constant, i) => {
+    switch (constant.type()) {
+      case ObjectType.INTEGER_OBJ:
+        if (!testIntegerObject(constant, actual[i])) {
+          return false;
+        }
+        break;
+    }
+  });
+
+  return true;
+};
+
 export {
   cleanInspect,
   cleanStmt,
@@ -47,4 +72,5 @@ export {
   parseAndEval,
   testInstructions,
   concatInstructions,
+  testConstants,
 };
