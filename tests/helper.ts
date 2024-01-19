@@ -23,4 +23,28 @@ const parseAndEval = (input: string, pos?: number) => {
   return new Eval().evaluate(program, new Environment({}))[pos ?? 0];
 };
 
-export { cleanInspect, cleanStmt, parse, parseAndEval };
+const testInstructions = (expected: ArrayBuffer[], actual: ArrayBuffer) => {
+  const expectedArray = concatInstructions(expected);
+  const actualArray = [...new Uint8Array(actual)];
+
+  expectedArray.forEach((item, i) => {
+    if (!(item === actualArray[i])) {
+      throw Error(`wrong instruction at ${i}`);
+    }
+  });
+};
+
+const concatInstructions = (instructions: ArrayBuffer[]) => {
+  return instructions
+    .map((instruction) => [...new Uint8Array(instruction)])
+    .flat();
+};
+
+export {
+  cleanInspect,
+  cleanStmt,
+  parse,
+  parseAndEval,
+  testInstructions,
+  concatInstructions,
+};
