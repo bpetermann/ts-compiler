@@ -28,23 +28,23 @@ const testInstructions = (expected: ArrayBuffer[], actual: ArrayBuffer) => {
   const actualArray = [...new Uint8Array(actual)];
 
   if (concatted.length !== actualArray.length) {
-    throw Error(`wrong instructions length.`);
+    console.error(`wrong instructions length.`);
+    return false;
   }
 
-  concatted.forEach((item, i) => {
-    if (!(item === actualArray[i])) {
-      throw Error(
-        `wrong instruction at ${i}. Want${item} got ${actualArray[i]}`
+  for (let i = 0; i < concatted.length; i++) {
+    if (concatted[i] !== actualArray[i]) {
+      console.error(
+        `wrong instruction at index ${i}, want ${concatted[i]} got ${actualArray[i]}`
       );
+      return false;
     }
-  });
+  }
+  return true;
 };
 
-const concatInstructions = (instructions: ArrayBuffer[]) => {
-  return instructions
-    .map((instruction) => [...new Uint8Array(instruction)])
-    .flat();
-};
+const concatInstructions = (instructions: ArrayBuffer[]) =>
+  instructions.map((instruction) => [...new Uint8Array(instruction)]).flat();
 
 const testIntegerObject = (expected: Object, actual: Object) =>
   expected.type() === ObjectType.INTEGER_OBJ &&
@@ -52,15 +52,15 @@ const testIntegerObject = (expected: Object, actual: Object) =>
   (expected as Integer).value === (actual as Integer).value;
 
 const testConstants = (expected: Object[], actual: Object[]) => {
-  expected.forEach((constant, i) => {
-    switch (constant.type()) {
+  for (let i = 0; i < expected.length; i++) {
+    switch (expected[i].type()) {
       case ObjectType.INTEGER_OBJ:
-        if (!testIntegerObject(constant, actual[i])) {
+        if (!testIntegerObject(expected[i], actual[i])) {
           return false;
         }
         break;
     }
-  });
+  }
 
   return true;
 };
