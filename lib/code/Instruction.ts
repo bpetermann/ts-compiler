@@ -1,6 +1,6 @@
-import { OpCode, Definition } from '../../types';
+import { OpCode, Definition, Instructions } from '../../types';
 
-export default class Code {
+export default class Instruction {
   private constructor() {
     throw new Error('This class is non-instantiable.');
   }
@@ -14,15 +14,19 @@ export default class Code {
       return null;
     }
 
-    return Code.definitions[op as OpCode];
+    return Instruction.definitions[op as OpCode];
   }
 
-  static make(op: number, operands: number[]): ArrayBuffer {
+  string() {
+    return '';
+  }
+
+  static make(op: number, operands: number[]): Instructions {
     if (!(op in OpCode)) {
       return new ArrayBuffer(0);
     }
 
-    const { operandWidths } = Code.definitions[op as OpCode];
+    const { operandWidths } = Instruction.definitions[op as OpCode];
 
     const instructionLen =
       1 + operandWidths.reduce((prev, cur) => prev + cur, 0);
@@ -46,5 +50,27 @@ export default class Code {
     }
 
     return instruction;
+  }
+
+  static readOperands(
+    def: Definition,
+    ins: Instructions
+  ): { operands: number[]; offset: number } {
+    let dataView = new DataView(ins);
+    const operands: number[] = new Array(def.operandWidths.length);
+    let offset = 0;
+
+    for (let i = 0; i < def.operandWidths.length; i++) {
+      const width = def.operandWidths[i];
+
+      switch (width) {
+        case 2:
+          operands[i] = dataView.getUint16(offset, false);
+      }
+
+      offset += width;
+    }
+
+    return { operands, offset };
   }
 }
