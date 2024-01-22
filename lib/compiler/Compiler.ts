@@ -1,10 +1,11 @@
 import { Object, NodeType } from '../../types';
+import { Instruction } from '../code';
 
 export default class Compiler {
-  instructions: ArrayBuffer[];
+  instructions: Instruction[];
   constants: Object[];
 
-  constructor(instructions: ArrayBuffer[], constants: Object[]) {
+  constructor(instructions: Instruction[], constants: Object[]) {
     this.instructions = instructions;
     this.constants = constants;
   }

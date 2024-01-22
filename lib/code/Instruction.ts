@@ -1,76 +1,41 @@
-import { OpCode, Definition, Instructions } from '../../types';
-
 export default class Instruction {
-  private constructor() {
-    throw new Error('This class is non-instantiable.');
+  private dataView: DataView;
+
+  constructor(length: number) {
+    this.dataView = new DataView(new ArrayBuffer(length));
   }
 
-  private static definitions: Record<OpCode, Definition> = {
-    [OpCode.OpConstant]: { name: 'OpConstant', operandWidths: [2] },
-  };
-
-  static lookUp(op: number): null | Definition {
-    if (!(op in OpCode)) {
-      return null;
-    }
-
-    return Instruction.definitions[op as OpCode];
+  setUint8(byteOffset: number, value: number) {
+    this.dataView.setUint8(byteOffset, value);
   }
 
-  string() {
-    return '';
+  setUint16(byteOffset: number, value: number) {
+    this.dataView.setUint16(byteOffset, value);
   }
 
-  static make(op: number, operands: number[]): Instructions {
-    if (!(op in OpCode)) {
-      return new ArrayBuffer(0);
-    }
-
-    const { operandWidths } = Instruction.definitions[op as OpCode];
-
-    const instructionLen =
-      1 + operandWidths.reduce((prev, cur) => prev + cur, 0);
-    const instruction = new ArrayBuffer(instructionLen);
-    const dataView = new DataView(instruction);
-
-    dataView.setUint8(0, op);
-
-    let offset = 1;
-
-    for (let i = 0; i < operands.length; i++) {
-      const width = operandWidths[i];
-
-      switch (width) {
-        case 2:
-          dataView.setUint16(offset, operands[i], false);
-          break;
-      }
-
-      offset += width;
-    }
-
-    return instruction;
+  getBuffer() {
+    return this.dataView.buffer;
   }
 
-  static readOperands(
-    def: Definition,
-    ins: Instructions
-  ): { operands: number[]; offset: number } {
-    let dataView = new DataView(ins);
-    const operands: number[] = new Array(def.operandWidths.length);
-    let offset = 0;
+  getUint16(byteOffset: number) {
+    if (byteOffset < 0 || byteOffset + 2 > this.dataView.byteLength) {
+      throw new Error('Invalid byteOffset');
+    }
+    console.log(this.dataView);
+    return this.dataView.getUint16(byteOffset, false);
+  }
 
-    for (let i = 0; i < def.operandWidths.length; i++) {
-      const width = def.operandWidths[i];
-
-      switch (width) {
-        case 2:
-          operands[i] = dataView.getUint16(offset, false);
-      }
-
-      offset += width;
+  slice(value: number): Instruction {
+    if (value < 0 || value > this.dataView.byteLength) {
+      throw new Error('Invalid slice value');
     }
 
-    return { operands, offset };
+    const slicedInstruction = new Instruction(this.dataView.byteLength - value);
+
+    const originalValues = new Uint8Array(this.dataView.buffer, value);
+    const slicedValues = new Uint8Array(slicedInstruction.dataView.buffer);
+    slicedValues.set(originalValues);
+
+    return slicedInstruction;
   }
 }

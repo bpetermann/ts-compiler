@@ -3,5 +3,3 @@ export enum OpCode {
 }
 
 export type Definition = { name: string; operandWidths: number[] };
-
-export type Instructions = ArrayBuffer;
