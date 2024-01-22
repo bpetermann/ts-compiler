@@ -5,13 +5,13 @@ import { Program } from '../lib/ast';
 import { Eval } from '../lib/eval';
 import { Instruction } from '../lib/code';
 
-const cleanInspect = (obj: Object) => {
-  return obj.inspect().replace(/\x1B\[[0-9;]*m/g, '');
-};
+const cleanInspect = (obj: Object) =>
+  obj.inspect().replace(/\x1B\[[0-9;]*m/g, '');
 
-const cleanStmt = (input: string) => {
-  return input.replace(/\x1B\[[0-9;]*m/g, '').trim();
-};
+const cleanStmt = (input: string) =>
+  input.replace(/\x1B\[[0-9;]*m/g, '').trim();
+
+const cleanString = (input: string) => new RegExp(input.replace(/\n/g, '\\s*'));
 
 const parse = (input: string) => {
   const parser = new Parser(input);
@@ -29,13 +29,13 @@ const testInstructions = (expected: Instruction[], actual: Instruction) => {
   const actualArray = actual.getUint8Array();
 
   if (concatted.length !== actualArray.length) {
-    console.error(`wrong instructions length.`);
+    console.log(`wrong instructions length.`);
     return false;
   }
 
   for (let i = 0; i < concatted.length; i++) {
     if (concatted[i] !== actualArray[i]) {
-      console.error(
+      console.log(
         `wrong instruction at index ${i}, want ${concatted[i]} got ${actualArray[i]}`
       );
       return false;
@@ -69,6 +69,7 @@ const testConstants = (expected: Object[], actual: Object[]) => {
 export {
   cleanInspect,
   cleanStmt,
+  cleanString,
   parse,
   parseAndEval,
   testInstructions,

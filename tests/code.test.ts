@@ -1,6 +1,6 @@
-import { Code, Instruction } from '../lib/code';
-import { concatInstructions } from './helper';
+import { cleanString, concatInstructions } from './helper';
 import { expect } from '@jest/globals';
+import { Code } from '../lib/code';
 import { OpCode } from '../types';
 
 it('should generate bytecode for a single operand', () => {
@@ -36,8 +36,22 @@ it('should decode the operands of a bytecode instruction', () => {
   }
 });
 
-it('should print instrctions in string format', () => {
-  const instruction: Instruction = Code.make(OpCode.OpConstant, [1]);
+it('should print instruction in string format', () => {
+  const instruction = [
+    Code.make(OpCode.OpConstant, [1]),
+    Code.make(OpCode.OpConstant, [2]),
+    Code.make(OpCode.OpConstant, [65535]),
+  ];
 
-  console.log(instruction.string());
+  const expected = `
+  0 OpConstant 1
+  3 OpConstant 2 
+  6 OpConstant 65535
+  `;
+
+  const concatted = concatInstructions(instruction);
+
+  expect(expect.stringMatching(cleanString(concatted.string()))).toEqual(
+    expected
+  );
 });

@@ -1,8 +1,18 @@
+import { Definition } from 'types';
+import Code from './Code';
 export default class Instruction {
   private dataView: DataView;
 
-  constructor(length: number) {
+  constructor(length: number, values?: number[]) {
+    if (values && values.length !== length) {
+      throw new Error('Length of values must match the specified length');
+    }
+
     this.dataView = new DataView(new ArrayBuffer(length));
+
+    if (values) {
+      this.setValues(values);
+    }
   }
 
   setValues(values: number[]): Instruction {
@@ -75,8 +85,44 @@ export default class Instruction {
     return combinedInstruction;
   }
 
-  // Placeholder for future implementation
+  private fmtInstruction(def: Definition, operands: number[]): string {
+    const operandCount = def.operandWidths.length;
+
+    if (operands.length !== operandCount) {
+      throw new Error(
+        `ERROR: operand len ${operands.length} does not match defined ${operandCount}`
+      );
+    }
+
+    switch (operandCount) {
+      case 1:
+        return `${def.name} ${operands[0]}`;
+
+      default:
+        throw new Error(
+          `ERROR: operand len ${operands.length} does not match defined ${operandCount}`
+        );
+    }
+  }
+
   string(): string {
-    return '';
+    let out = '';
+    for (let i = 0; i < this.dataView.byteLength; i++) {
+      const definition = Code.lookUp(this.getUint8Array()[i]);
+
+      if (!definition) {
+        throw new Error('OpCode not found');
+      }
+
+      const { operands, offset } = Code.readOperands(
+        definition,
+        this.slice(i + 1)
+      );
+
+      out += `${i} ${this.fmtInstruction(definition, operands)}\n`;
+
+      i += offset;
+    }
+    return out;
   }
 }

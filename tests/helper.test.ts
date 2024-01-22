@@ -15,8 +15,8 @@ it('should map token types to numbers', () => {
 });
 
 it('should concat two array Buffer', () => {
-  const buffer1 = new Instruction(3).setValues([1, 2, 3]);
-  const buffer2 = new Instruction(3).setValues([4, 5, 6]);
+  const buffer1 = new Instruction(3, [1, 2, 3]);
+  const buffer2 = new Instruction(3, [4, 5, 6]);
 
   const actual = helper.concatInstructions([buffer1, buffer2]);
   const expected = [1, 2, 3, 4, 5, 6];
@@ -25,15 +25,15 @@ it('should concat two array Buffer', () => {
 });
 
 it('should check the equality of two instructions', () => {
-  const instructions = new Instruction(3).setValues([1, 2, 3]);
+  const instructions = new Instruction(3, [1, 2, 3]);
   const instructionsArray = [instructions];
 
   expect(helper.testInstructions(instructionsArray, instructions)).toBe(true);
 });
 
 it('should return false if the instuctions arent equal', () => {
-  const instructions = new Instruction(3).setValues([1, 2, 3]);
-  const differentInstructions = new Instruction(3).setValues([4, 5, 6]);
+  const instructions = new Instruction(3, [1, 2, 3]);
+  const differentInstructions = new Instruction(3, [4, 5, 6]);
   const instructionsArray = [differentInstructions];
 
   expect(helper.testInstructions(instructionsArray, instructions)).toBe(false);
