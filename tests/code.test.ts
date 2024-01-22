@@ -13,14 +13,24 @@ it('should generate bytecode for a single operand', () => {
 });
 
 it('should decode the operands of a bytecode instruction', () => {
-  const operand = 65534;
+  const operands = [65534];
+  const bytesRead = 2;
 
   const def = Code.lookUp(OpCode.OpConstant);
-  const ins = Code.make(OpCode.OpConstant, [operand]);
+  const ins = Code.make(OpCode.OpConstant, operands);
 
-  if (def) {
-    const { operands } = Code.readOperands(def, ins.slice(1));
+  if (!def) {
+    throw new Error('OpCode not found');
+  }
 
-    expect(operands[0]).toEqual(operand);
+  const { operands: operandsRead, offset } = Code.readOperands(
+    def,
+    ins.slice(1)
+  );
+
+  expect(offset).toEqual(bytesRead);
+
+  for (let i = 0; i < operands.length; i++) {
+    expect(operandsRead[i]).toEqual(operands[i]);
   }
 });
