@@ -3,6 +3,7 @@ import { Object, ObjectType } from '../types';
 import { Parser } from '../lib/parser';
 import { Program } from '../lib/ast';
 import { Eval } from '../lib/eval';
+import { Instruction } from '../lib/code';
 
 const cleanInspect = (obj: Object) => {
   return obj.inspect().replace(/\x1B\[[0-9;]*m/g, '');
@@ -23,9 +24,9 @@ const parseAndEval = (input: string, pos?: number) => {
   return new Eval().evaluate(program, new Environment({}))[pos ?? 0];
 };
 
-const testInstructions = (expected: ArrayBuffer[], actual: ArrayBuffer) => {
-  const concatted = concatInstructions(expected);
-  const actualArray = [...new Uint8Array(actual)];
+const testInstructions = (expected: Instruction[], actual: Instruction) => {
+  const concatted = concatInstructions(expected).getUint8Array();
+  const actualArray = actual.getUint8Array();
 
   if (concatted.length !== actualArray.length) {
     console.error(`wrong instructions length.`);
@@ -43,8 +44,8 @@ const testInstructions = (expected: ArrayBuffer[], actual: ArrayBuffer) => {
   return true;
 };
 
-const concatInstructions = (instructions: ArrayBuffer[]) =>
-  instructions.map((instruction) => [...new Uint8Array(instruction)]).flat();
+const concatInstructions = (instructions: Instruction[]): Instruction =>
+  Instruction.concatAll(instructions);
 
 const testIntegerObject = (expected: Object, actual: Object) =>
   expected.type() === ObjectType.INTEGER_OBJ &&

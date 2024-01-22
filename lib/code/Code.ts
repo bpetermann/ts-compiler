@@ -10,16 +10,8 @@ export default class Code {
     [OpCode.OpConstant]: { name: 'OpConstant', operandWidths: [2] },
   };
 
-  static lookUp(op: number): null | Definition {
-    if (!(op in OpCode)) {
-      return null;
-    }
-
-    return Code.definitions[op as OpCode];
-  }
-
-  string() {
-    return '';
+  static lookUp(op: number): undefined | Definition {
+    return !(op in OpCode) ? undefined : Code.definitions[op as OpCode];
   }
 
   static make(op: number, operands: number[]): Instruction {

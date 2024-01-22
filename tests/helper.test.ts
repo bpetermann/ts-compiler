@@ -1,4 +1,5 @@
 import { precedences } from '../lib/parser/helper';
+import { Instruction } from '../lib/code';
 import { expect } from '@jest/globals';
 import { TokenType } from '../types';
 import * as helper from './helper';
@@ -14,28 +15,28 @@ it('should map token types to numbers', () => {
 });
 
 it('should concat two array Buffer', () => {
-  const buffer1 = new Uint8Array([1, 2, 3]).buffer;
-  const buffer2 = new Uint8Array([4, 5, 6]).buffer;
+  const buffer1 = new Instruction(3).setValues([1, 2, 3]);
+  const buffer2 = new Instruction(3).setValues([4, 5, 6]);
 
   const actual = helper.concatInstructions([buffer1, buffer2]);
   const expected = [1, 2, 3, 4, 5, 6];
 
-  expect([...new Uint8Array(actual)]).toEqual(expected);
+  expect(actual.getUint8Array()).toEqual(expected);
 });
 
 it('should check the equality of two instructions', () => {
-  const buffer = new Uint8Array([10, 20, 30]).buffer;
-  const bufferArray = [buffer];
+  const instructions = new Instruction(3).setValues([1, 2, 3]);
+  const instructionsArray = [instructions];
 
-  expect(helper.testInstructions(bufferArray, buffer)).toBe(true);
+  expect(helper.testInstructions(instructionsArray, instructions)).toBe(true);
 });
 
 it('should return false if the instuctions arent equal', () => {
-  const buffer = new Uint8Array([10, 20, 30]).buffer;
-  const differentBuffer = new Uint8Array([20, 30, 40]).buffer;
-  const bufferArray = [differentBuffer];
+  const instructions = new Instruction(3).setValues([1, 2, 3]);
+  const differentInstructions = new Instruction(3).setValues([4, 5, 6]);
+  const instructionsArray = [differentInstructions];
 
-  expect(helper.testInstructions(bufferArray, buffer)).toBe(false);
+  expect(helper.testInstructions(instructionsArray, instructions)).toBe(false);
 });
 
 it('should compare two integer object arrays', () => {
