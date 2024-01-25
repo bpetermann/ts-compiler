@@ -1,9 +1,10 @@
 import { Environment, Integer } from '../lib/object';
 import { Object, ObjectType } from '../types';
+import { Instruction } from '../lib/code';
 import { Parser } from '../lib/parser';
 import { Program } from '../lib/ast';
 import { Eval } from '../lib/eval';
-import { Instruction } from '../lib/code';
+import colors from 'colors';
 
 const cleanInspect = (obj: Object) =>
   obj.inspect().replace(/\x1B\[[0-9;]*m/g, '');
@@ -13,7 +14,7 @@ const cleanStmt = (input: string) =>
 
 const cleanString = (input: string) => new RegExp(input.replace(/\n/g, '\\s*'));
 
-const parse = (input: string) => {
+const parse = (input: string): Program => {
   const parser = new Parser(input);
   return parser.parse();
 };
@@ -29,14 +30,16 @@ const testInstructions = (expected: Instruction[], actual: Instruction) => {
   const actualArray = actual.getUint8Array();
 
   if (concatted.length !== actualArray.length) {
-    console.log(`wrong instructions length.`);
+    console.log(colors.red(`wrong instructions length.`));
     return false;
   }
 
   for (let i = 0; i < concatted.length; i++) {
     if (concatted[i] !== actualArray[i]) {
       console.log(
-        `wrong instruction at index ${i}, want ${concatted[i]} got ${actualArray[i]}`
+        colors.red(
+          `wrong instruction at index ${i}, want ${concatted[i]} got ${actualArray[i]}`
+        )
       );
       return false;
     }
