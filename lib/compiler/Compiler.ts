@@ -1,4 +1,4 @@
-import { Object, NodeType, OpCode } from '../../types';
+import { Object, NodeType, OpCode, ByteCode } from '../../types';
 import { Instruction } from '../code';
 import * as obj from '../object';
 import { Code } from '../code';
@@ -61,10 +61,7 @@ export default class Compiler {
     return posNewInstruction;
   }
 
-  byteCode(): {
-    instruction: Instruction;
-    constants: Object[];
-  } {
+  byteCode(): ByteCode {
     return {
       instruction: Instruction.concatAll(this.instructions),
       constants: this.constants,
