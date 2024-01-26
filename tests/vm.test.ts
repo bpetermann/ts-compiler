@@ -6,18 +6,12 @@ import * as helper from './helper';
 import VM from '../lib/vm/VM';
 
 const getStackElement = (expression: string) => {
-  const bytecode = compileExpression(expression);
+  const bytecode = helper.compileExpression(expression);
 
   const vm = new VM(bytecode);
   const stackElem = vm.stackTop();
 
   return stackElem;
-};
-
-const compileExpression = (expression: string) => {
-  const compiler = new Compiler();
-  compiler.compile(helper.parse(expression));
-  return compiler.byteCode();
 };
 
 const testExpectedObject = (expected: Object, actual: Object): boolean => {
@@ -28,7 +22,7 @@ const testExpectedObject = (expected: Object, actual: Object): boolean => {
   return false;
 };
 
-it('should compile two numbers', () => {
+it('should return integer stack elements', () => {
   const tests: [string, number][] = [
     ['1', 1],
     ['2', 2],

@@ -1,4 +1,5 @@
 import { Environment, Integer } from '../lib/object';
+import Compiler from '../lib/compiler/Compiler';
 import { Object, ObjectType } from '../types';
 import { Instruction } from '../lib/code';
 import { Parser } from '../lib/parser';
@@ -69,6 +70,12 @@ const testConstants = (expected: Object[], actual: Object[]) => {
   return true;
 };
 
+const compileExpression = (expression: string) => {
+  const compiler = new Compiler();
+  compiler.compile(parse(expression));
+  return compiler.byteCode();
+};
+
 export {
   cleanInspect,
   cleanStmt,
@@ -79,4 +86,5 @@ export {
   concatInstructions,
   testIntegerObject,
   testConstants,
+  compileExpression
 };
