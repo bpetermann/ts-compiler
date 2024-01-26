@@ -19,11 +19,10 @@ it('should compile two numbers', () => {
   const expectedConstants = [new obj.Integer(1), new obj.Integer(2)];
   const inputExpression = '1 + 2';
 
-  const { constants, instructions } = compileExpression(inputExpression);
-  const concatActual = helper.concatInstructions(instructions);
+  const { constants, instruction } = compileExpression(inputExpression);
 
   expect(helper.testConstants(expectedConstants, constants)).toEqual(true);
-  expect(helper.testInstructions(expectedInstructions, concatActual)).toEqual(
+  expect(helper.testInstructions(expectedInstructions, instruction)).toEqual(
     true
   );
 });

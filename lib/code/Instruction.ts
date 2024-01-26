@@ -38,6 +38,10 @@ export default class Instruction {
     return [...new Uint8Array(this.dataView.buffer)];
   }
 
+  length(): number {
+    return [...new Uint8Array(this.dataView.buffer)].length;
+  }
+
   getInstruction(): Instruction {
     return this;
   }

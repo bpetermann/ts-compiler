@@ -62,11 +62,11 @@ export default class Compiler {
   }
 
   byteCode(): {
-    instructions: Instruction[];
+    instruction: Instruction;
     constants: Object[];
   } {
     return {
-      instructions: this.instructions,
+      instruction: Instruction.concatAll(this.instructions),
       constants: this.constants,
     };
   }
