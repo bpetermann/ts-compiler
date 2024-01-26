@@ -77,5 +77,6 @@ export {
   parseAndEval,
   testInstructions,
   concatInstructions,
+  testIntegerObject,
   testConstants,
 };
