@@ -3,23 +3,8 @@ import Code from './Code';
 export default class Instruction {
   private dataView: DataView;
 
-  constructor(length: number, values?: number[]) {
-    if (values && values.length !== length) {
-      throw new Error('Length of values must match the specified length');
-    }
-
+  constructor(length: number) {
     this.dataView = new DataView(new ArrayBuffer(length));
-
-    if (values) {
-      this.setValues(values);
-    }
-  }
-
-  setValues(values: number[]): Instruction {
-    for (let i = 0; i < values.length; i++) {
-      this.dataView.setUint8(i, values[i]);
-    }
-    return this;
   }
 
   setUint8(byteOffset: number, value: number): void {
