@@ -46,6 +46,13 @@ export default class Instruction {
     return this;
   }
 
+  getUint8(byteOffset: number): number {
+    if (byteOffset < 0 || byteOffset + 2 > this.dataView.byteLength) {
+      throw new Error('Invalid byteOffset');
+    }
+    return this.dataView.getUint8(byteOffset);
+  }
+
   getUint16(byteOffset: number): number {
     if (byteOffset < 0 || byteOffset + 2 > this.dataView.byteLength) {
       throw new Error('Invalid byteOffset');

@@ -12,7 +12,7 @@ const compileExpression = (expression: string) => {
 };
 
 it('should compile two numbers', () => {
-  const expectedInstructions = [
+  const expectedInstruction = [
     Code.make(OpCode.OpConstant, [0]),
     Code.make(OpCode.OpConstant, [1]),
   ];
@@ -22,7 +22,7 @@ it('should compile two numbers', () => {
   const { constants, instruction } = compileExpression(inputExpression);
 
   expect(helper.testConstants(expectedConstants, constants)).toEqual(true);
-  expect(helper.testInstructions(expectedInstructions, instruction)).toEqual(
+  expect(helper.testInstructions(expectedInstruction, instruction)).toEqual(
     true
   );
 });

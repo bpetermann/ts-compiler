@@ -4,10 +4,11 @@ import * as obj from '../lib/object';
 import * as helper from './helper';
 import VM from '../lib/vm/VM';
 
-const getStackElement = (expression: string) => {
+const getStackTop = (expression: string) => {
   const bytecode = helper.compileExpression(expression);
 
   const vm = new VM(bytecode);
+  vm.run();
   const stackElem = vm.stackTop();
 
   return stackElem;
@@ -28,7 +29,7 @@ it('should return integer stack elements', () => {
   ];
 
   tests.forEach((test) => {
-    const stackElement = getStackElement(test[0]);
+    const stackElement = getStackTop(test[0]);
     const result = testExpectedObject(new obj.Integer(test[1]), stackElement);
     expect(result).toEqual(true);
   });
