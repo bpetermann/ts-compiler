@@ -1,4 +1,3 @@
-import Compiler from '../lib/compiler/Compiler';
 import { Object, ObjectType } from '../types';
 import { expect } from '@jest/globals';
 import * as obj from '../lib/object';
