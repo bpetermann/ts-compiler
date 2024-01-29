@@ -1,4 +1,4 @@
-import Compiler from '../lib/compiler/Compiler';
+import Compiler from '../lib/compiler';
 import { expect } from '@jest/globals';
 import * as obj from '../lib/object';
 import * as helper from './helper';

@@ -1,7 +1,7 @@
 import { Environment, Integer } from '../lib/object';
-import Compiler from '../lib/compiler/Compiler';
 import { Object, ObjectType } from '../types';
 import { Instruction } from '../lib/code';
+import Compiler from '../lib/compiler';
 import { Parser } from '../lib/parser';
 import { Program } from '../lib/ast';
 import { Eval } from '../lib/eval';
@@ -86,5 +86,5 @@ export {
   concatInstructions,
   testIntegerObject,
   testConstants,
-  compileExpression
+  compileExpression,
 };

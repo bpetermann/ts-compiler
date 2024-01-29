@@ -1,9 +1,9 @@
-import Compiler from '../compiler/Compiler';
 import { TokenType } from '../../types';
 import { Parser } from '../parser';
+import Compiler from '../compiler';
 import readline from 'readline';
 import colors from 'colors';
-import VM from '../vm/VM';
+import VM from '../vm';
 
 export default class Repl {
   rl: readline.Interface;
