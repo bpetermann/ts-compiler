@@ -26,7 +26,7 @@ it('should return integer stack elements', () => {
   const tests: [string, number][] = [
     ['1', 1],
     ['2', 2],
-    ['1 + 2', 2],
+    ['1 + 2', 3],
   ];
 
   tests.forEach((test) => {

@@ -1,4 +1,4 @@
-import { Object, NodeType, OpCode, ByteCode } from '../../types';
+import { Object, NodeType, OpCode, ByteCode, TokenType } from '../../types';
 import { Instruction } from '../code';
 import * as obj from '../object';
 import { Code } from '../code';
@@ -29,10 +29,18 @@ export default class Compiler {
       case node instanceof ast.ExpressionStatement:
         return this.compileNode((node as ast.ExpressionStatement).expression);
       case node instanceof ast.InfixExpression:
-        const { left: infixLeft, right: infixRight } =
-          node as ast.InfixExpression;
+        const {
+          left: infixLeft,
+          right: infixRight,
+          operator,
+        } = node as ast.InfixExpression;
         this.compileNode(infixLeft);
         this.compileNode(infixRight);
+        switch (operator) {
+          case TokenType.PLUS:
+            this.emit(OpCode.OpAdd);
+            break;
+        }
         break;
       case node instanceof ast.IntegerLiteral:
         const { value } = node as ast.IntegerLiteral;
@@ -49,7 +57,7 @@ export default class Compiler {
     return this.constants.length - 1;
   }
 
-  emit(op: number, operands: number[]): number {
+  emit(op: number, operands: number[] = []): number {
     const instruction = Code.make(op, operands);
     const position = this.addInstruction(instruction);
     return position;

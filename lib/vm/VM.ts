@@ -1,6 +1,7 @@
 import { Object, ByteCode, OpCode } from '../../types';
 import { Instruction } from 'lib/code';
 import { Integer } from '../object';
+import * as obj from '../object';
 
 export default class VM {
   instruction: Instruction;
@@ -31,6 +32,15 @@ export default class VM {
           ip += 2;
           this.push(this.constants[constIndex]);
           break;
+        case OpCode.OpAdd:
+          const right = this.pop();
+          const left = this.pop();
+          const rightvalue = (right as obj.Integer).value;
+          const leftValue = (left as obj.Integer).value;
+
+          const result = leftValue + rightvalue;
+          this.push(new obj.Integer(result));
+          break;
       }
     }
   }
@@ -41,5 +51,11 @@ export default class VM {
     }
     this.stack[this.stackPointer] = obj;
     this.stackPointer++;
+  }
+
+  pop(): Object {
+    const obj = this.stack[this.stackPointer - 1];
+    this.stackPointer--;
+    return obj;
   }
 }
