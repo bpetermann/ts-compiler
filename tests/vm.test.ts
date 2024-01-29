@@ -26,11 +26,13 @@ it('should return integer stack elements', () => {
   const tests: [string, number][] = [
     ['1', 1],
     ['2', 2],
+    ['1 + 2', 2],
   ];
 
   tests.forEach((test) => {
     const stackElement = getStackTop(test[0]);
     const result = testExpectedObject(new obj.Integer(test[1]), stackElement);
+
     expect(result).toEqual(true);
   });
 });

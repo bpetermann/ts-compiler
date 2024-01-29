@@ -5,9 +5,9 @@ import { Integer } from '../object';
 export default class VM {
   instruction: Instruction;
   constants: Object[];
-  stackSize: number;
-  stack: Object[];
-  stackPointer: number;
+  private stackSize: number;
+  private stack: Object[];
+  private stackPointer: number;
 
   constructor(byteCode: ByteCode) {
     const { instruction, constants } = byteCode;
