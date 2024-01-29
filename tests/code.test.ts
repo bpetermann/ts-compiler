@@ -50,7 +50,7 @@ it('should print instruction in string format', () => {
   `;
 
   const concatted = concatInstructions(instruction);
-  console.log(concatted.string());
+
   expect(expect.stringMatching(cleanString(concatted.string()))).toEqual(
     expected
   );

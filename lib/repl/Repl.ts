@@ -32,8 +32,8 @@ export default class Repl {
     const machine = new VM(compiler.byteCode());
     machine.run();
 
-    const stackTop = machine.stackTop();
-    console.log(stackTop);
+    const lastPoppedStackElem = machine.lastPoppedStackElem();
+    console.log(lastPoppedStackElem);
   }
 
   private processInput(input: string) {

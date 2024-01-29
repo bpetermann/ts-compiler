@@ -41,6 +41,8 @@ export default class VM {
           const result = leftValue + rightvalue;
           this.push(new obj.Integer(result));
           break;
+        case OpCode.OpPop:
+          this.pop();
       }
     }
   }
@@ -57,5 +59,9 @@ export default class VM {
     const obj = this.stack[this.stackPointer - 1];
     this.stackPointer--;
     return obj;
+  }
+
+  lastPoppedStackElem(): Object {
+    return this.stack[this.stackPointer];
   }
 }

@@ -22,7 +22,9 @@ export default class Compiler {
   compileNode(node: NodeType) {
     switch (true) {
       case node instanceof ast.ExpressionStatement:
-        return this.compileNode((node as ast.ExpressionStatement).expression);
+        this.compileNode((node as ast.ExpressionStatement).expression);
+        this.emit(OpCode.OpPop);
+        break;
       case node instanceof ast.InfixExpression:
         const {
           left: infixLeft,

@@ -9,6 +9,7 @@ export default class Code {
   private static definitions: Record<OpCode, Definition> = {
     [OpCode.OpConstant]: { name: 'OpConstant', operandWidths: [2] },
     [OpCode.OpAdd]: { name: 'OpAdd', operandWidths: [] },
+    [OpCode.OpPop]: { name: 'OpPop', operandWidths: [] },
   };
 
   static lookUp(op: number): undefined | Definition {

@@ -9,7 +9,7 @@ const getStackTop = (expression: string) => {
 
   const vm = new VM(bytecode);
   vm.run();
-  const stackElem = vm.stackTop();
+  const stackElem = vm.lastPoppedStackElem();
 
   return stackElem;
 };
