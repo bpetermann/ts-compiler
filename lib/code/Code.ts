@@ -15,7 +15,7 @@ export default class Code {
     return !(op in OpCode) ? undefined : Code.definitions[op as OpCode];
   }
 
-  static make(op: number, operands: number[]): Instruction {
+  static make(op: number, operands: number[] = []): Instruction {
     if (!(op in OpCode)) {
       return new Instruction(0);
     }

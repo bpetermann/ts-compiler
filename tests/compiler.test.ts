@@ -15,7 +15,7 @@ it('should compile two numbers', () => {
   const expectedInstruction = [
     Code.make(OpCode.OpConstant, [0]),
     Code.make(OpCode.OpConstant, [1]),
-    Code.make(OpCode.OpAdd, []),
+    Code.make(OpCode.OpAdd),
   ];
   const expectedConstants = [new obj.Integer(1), new obj.Integer(2)];
   const inputExpression = '1 + 2';

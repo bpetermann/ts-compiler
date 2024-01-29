@@ -1,22 +1,18 @@
-import { Environment } from '../object';
+import Compiler from '../compiler/Compiler';
 import { TokenType } from '../../types';
 import { Parser } from '../parser';
 import readline from 'readline';
-import { Eval } from '../eval';
 import colors from 'colors';
+import VM from '../vm/VM';
 
 export default class Repl {
   rl: readline.Interface;
-  private eval: Eval;
-  env: Environment;
 
   constructor() {
     this.rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
     });
-    this.env = new Environment({});
-    this.eval = new Eval();
   }
 
   private print(line: string) {
@@ -30,10 +26,14 @@ export default class Repl {
       return;
     }
 
-    const evaluated = this.eval.evaluate(program, this.env);
-    evaluated.forEach((obj) => {
-      console.log(obj ? obj.inspect() : colors.gray('undefined'));
-    });
+    const compiler = new Compiler();
+    compiler.compile(program);
+
+    const machine = new VM(compiler.byteCode());
+    machine.run();
+
+    const stackTop = machine.stackTop();
+    console.log(stackTop);
   }
 
   private processInput(input: string) {
