@@ -37,6 +37,15 @@ export default class Compiler {
           case TokenType.PLUS:
             this.emit(OpCode.OpAdd);
             break;
+          case TokenType.MINUS:
+            this.emit(OpCode.OpSub);
+            break;
+          case TokenType.ASTERISK:
+            this.emit(OpCode.OpMul);
+            break;
+          case TokenType.SLASH:
+            this.emit(OpCode.OpDiv);
+            break;
           default:
             throw new Error(`unknown operator ${operator}`);
         }
