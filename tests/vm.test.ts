@@ -22,11 +22,32 @@ const testExpectedObject = (expected: Object, actual: Object): boolean => {
   return false;
 };
 
-it('should return integer stack elements', () => {
+it('should apply int arithmetic', () => {
   const tests: [string, number][] = [
     ['1', 1],
     ['2', 2],
     ['1 + 2', 3],
+  ];
+
+  tests.forEach((test) => {
+    const stackElement = getStackTop(test[0]);
+    const result = testExpectedObject(new obj.Integer(test[1]), stackElement);
+
+    expect(result).toEqual(true);
+  });
+});
+
+it('should apply advanced int arithmetic', () => {
+  const tests: [string, number][] = [
+    ['1 - 2', -1],
+    ['1 * 2', 2],
+    ['4 / 2', 2],
+    ['50 / 2 * 2 + 10 - 5', 55],
+    ['5 + 5 + 5 + 5 - 10', 10],
+    ['2 * 2 * 2 * 2 * 2', 32],
+    ['5 * 2 + 10', 20],
+    ['5 + 2 * 10', 25],
+    ['5 * (2 + 10)', 60],
   ];
 
   tests.forEach((test) => {

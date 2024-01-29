@@ -1,4 +1,4 @@
-import { Object, ByteCode, OpCode } from '../../types';
+import { Object, ByteCode, OpCode, ObjectType } from '../../types';
 import { Instruction } from 'lib/code';
 import { Integer } from '../object';
 import * as obj from '../object';
@@ -33,18 +33,68 @@ export default class VM {
           this.push(this.constants[constIndex]);
           break;
         case OpCode.OpAdd:
-          const right = this.pop();
-          const left = this.pop();
-          const rightvalue = (right as obj.Integer).value;
-          const leftValue = (left as obj.Integer).value;
-
-          const result = leftValue + rightvalue;
-          this.push(new obj.Integer(result));
+        case OpCode.OpSub:
+        case OpCode.OpMul:
+        case OpCode.OpDiv:
+          this.executeBinaryOperation(op);
           break;
         case OpCode.OpPop:
           this.pop();
       }
     }
+  }
+
+  executeBinaryIntegerOperation(
+    op: OpCode,
+    left: obj.Integer,
+    right: obj.Integer
+  ) {
+    const leftValue = left.value;
+    const rightValue = right.value;
+
+    let result: number;
+
+    switch (op) {
+      case OpCode.OpAdd:
+        result = leftValue + rightValue;
+        break;
+      case OpCode.OpSub:
+        result = leftValue - rightValue;
+        break;
+      case OpCode.OpMul:
+        result = leftValue * rightValue;
+        break;
+      case OpCode.OpDiv:
+        result = leftValue / rightValue;
+        break;
+      default:
+        throw new Error(`unknown integer operator: ${op}`);
+    }
+
+    this.push(new obj.Integer(result));
+  }
+
+  executeBinaryOperation(op: OpCode) {
+    const right = this.pop();
+    const left = this.pop();
+
+    const leftType = left.type();
+    const rightType = right.type();
+
+    if (
+      leftType !== ObjectType.INTEGER_OBJ &&
+      rightType !== ObjectType.INTEGER_OBJ
+    ) {
+      throw new Error(
+        `unsupported types for binary operation: ${leftType} ${rightType}`
+      );
+    }
+
+    this.executeBinaryIntegerOperation(
+      op,
+      left as obj.Integer,
+      right as obj.Integer
+    );
   }
 
   push(obj: Object): void {
