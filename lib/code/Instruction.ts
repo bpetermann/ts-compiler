@@ -32,7 +32,7 @@ export default class Instruction {
   }
 
   getUint8(byteOffset: number): number {
-    if (byteOffset < 0 || byteOffset + 2 > this.dataView.byteLength) {
+    if (byteOffset < 0 || byteOffset + 1 > this.dataView.byteLength) {
       throw new Error('Invalid byteOffset');
     }
     return this.dataView.getUint8(byteOffset);
