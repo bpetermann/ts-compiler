@@ -91,6 +91,8 @@ export default class Instruction {
     }
 
     switch (operandCount) {
+      case 0:
+        return `${def.name}`;
       case 1:
         return `${def.name} ${operands[0]}`;
 

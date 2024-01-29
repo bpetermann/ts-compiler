@@ -38,20 +38,35 @@ it('should decode the operands of a bytecode instruction', () => {
 
 it('should print instruction in string format', () => {
   const instruction = [
-    Code.make(OpCode.OpConstant, [1]),
+    Code.make(OpCode.OpAdd, []),
     Code.make(OpCode.OpConstant, [2]),
     Code.make(OpCode.OpConstant, [65535]),
   ];
 
   const expected = `
-  0 OpConstant 1
-  3 OpConstant 2 
-  6 OpConstant 65535
+  0 OpAdd
+  1 OpConstant 2 
+  4 OpConstant 65535
   `;
 
   const concatted = concatInstructions(instruction);
-
+  console.log(concatted.string());
   expect(expect.stringMatching(cleanString(concatted.string()))).toEqual(
     expected
   );
+});
+
+it('should make a instruction of op add', () => {
+  const operands = [];
+  const ins = Code.make(OpCode.OpAdd, operands);
+
+  const def = Code.lookUp(OpCode.OpAdd);
+
+  if (!def) {
+    throw new Error('OpCode not found');
+  }
+
+  const { operands: operandsRead } = Code.readOperands(def, ins.slice(1));
+
+  expect(operandsRead).toEqual(operands);
 });
