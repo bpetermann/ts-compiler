@@ -14,14 +14,9 @@ export default class Compiler {
   }
 
   compile(program: ast.Program) {
-    const results = [];
-
     for (const statement of program.statements) {
-      const result = this.compileNode(statement);
-      results.push(result);
+      this.compileNode(statement);
     }
-
-    return results;
   }
 
   compileNode(node: NodeType) {
@@ -40,6 +35,8 @@ export default class Compiler {
           case TokenType.PLUS:
             this.emit(OpCode.OpAdd);
             break;
+          default:
+            throw new Error(`unknown operator ${operator}`);
         }
         break;
       case node instanceof ast.IntegerLiteral:
