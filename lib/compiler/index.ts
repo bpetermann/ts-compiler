@@ -55,6 +55,9 @@ export default class Compiler {
         const integer = new obj.Integer(value);
         this.emit(OpCode.OpConstant, [this.addConstant(integer)]);
         break;
+      case node instanceof ast.BooleanLiteral:
+        const { value: booleanValue } = node as ast.BooleanLiteral;
+        this.emit(booleanValue ? OpCode.OpTrue : OpCode.OpFalse);
       default:
         return null;
     }

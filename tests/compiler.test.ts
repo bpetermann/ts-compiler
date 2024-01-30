@@ -82,3 +82,19 @@ it('should compile dividing two numbers', () => {
     true
   );
 });
+
+it('should compile boolean expressions', () => {
+  const expectedInstruction = [
+    Code.make(OpCode.OpTrue),
+    Code.make(OpCode.OpPop),
+  ];
+  const expectedConstants = [new obj.Boolean(true)];
+  const inputExpression = 'true';
+
+  const { constants, instruction } = compileExpression(inputExpression);
+
+  expect(helper.testConstants(expectedConstants, constants)).toEqual(true);
+  expect(helper.testInstructions(expectedInstruction, instruction)).toEqual(
+    true
+  );
+});
