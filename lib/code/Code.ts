@@ -13,6 +13,8 @@ export default class Code {
     [OpCode.OpSub]: { name: 'OpSub', operandWidths: [] },
     [OpCode.OpMul]: { name: 'OpMul', operandWidths: [] },
     [OpCode.OpDiv]: { name: 'OpDiv', operandWidths: [] },
+    [OpCode.OpTrue]: { name: 'OpTrue', operandWidths: [] },
+    [OpCode.OpFalse]: { name: 'OpFalse', operandWidths: [] },
   };
 
   static lookUp(op: number): undefined | Definition {

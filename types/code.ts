@@ -5,6 +5,8 @@ export enum OpCode {
   OpSub,
   OpMul,
   OpDiv,
+  OpTrue,
+  OpFalse,
 }
 
 export type Definition = { name: string; operandWidths: number[] };
