@@ -10,9 +10,9 @@ export default class Code {
     [OpCode.OpConstant]: { name: 'OpConstant', operandWidths: [2] },
     [OpCode.OpAdd]: { name: 'OpAdd', operandWidths: [] },
     [OpCode.OpPop]: { name: 'OpPop', operandWidths: [] },
-    [OpCode.OpSub]: { name: 'OpPop', operandWidths: [] },
-    [OpCode.OpMul]: { name: 'OpPop', operandWidths: [] },
-    [OpCode.OpDiv]: { name: 'OpPop', operandWidths: [] },
+    [OpCode.OpSub]: { name: 'OpSub', operandWidths: [] },
+    [OpCode.OpMul]: { name: 'OpMul', operandWidths: [] },
+    [OpCode.OpDiv]: { name: 'OpDiv', operandWidths: [] },
   };
 
   static lookUp(op: number): undefined | Definition {
