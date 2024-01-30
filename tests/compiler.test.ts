@@ -1,100 +1,95 @@
+import { Code, Instruction } from '../lib/code';
 import Compiler from '../lib/compiler';
 import { expect } from '@jest/globals';
 import * as obj from '../lib/object';
 import * as helper from './helper';
-import { Code } from '../lib/code';
 import { OpCode } from '../types';
 
 const compileExpression = (expression: string) => {
   const compiler = new Compiler();
   compiler.compile(helper.parse(expression));
+  console.log(helper.parse(expression).getString())
+
   return compiler.byteCode();
 };
 
-it('should compile adding two numbers', () => {
-  const expectedInstruction = [
-    Code.make(OpCode.OpConstant, [0]),
-    Code.make(OpCode.OpConstant, [1]),
-    Code.make(OpCode.OpAdd),
-    Code.make(OpCode.OpPop),
+it('should compile integer arithmetics', () => {
+  const expected: {
+    instruction: Instruction[];
+    constants: obj.Integer[];
+    expression: string;
+  }[] = [
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpAdd),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [new obj.Integer(1), new obj.Integer(2)],
+      expression: '1 + 2',
+    },
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpSub),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [new obj.Integer(1), new obj.Integer(2)],
+      expression: '1 - 2',
+    },
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpMul),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [new obj.Integer(1), new obj.Integer(2)],
+      expression: '1 * 2',
+    },
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpDiv),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [new obj.Integer(2), new obj.Integer(1)],
+      expression: '2 / 1',
+    },
   ];
-  const expectedConstants = [new obj.Integer(1), new obj.Integer(2)];
-  const inputExpression = '1 + 2';
 
-  const { constants, instruction } = compileExpression(inputExpression);
+  expected.forEach(({ instruction, constants, expression }) => {
+    const actual = compileExpression(expression);
 
-  expect(helper.testConstants(expectedConstants, constants)).toEqual(true);
-  expect(helper.testInstructions(expectedInstruction, instruction)).toEqual(
-    true
-  );
-});
-
-it('should compile subtracting two numbers', () => {
-  const expectedInstruction = [
-    Code.make(OpCode.OpConstant, [0]),
-    Code.make(OpCode.OpConstant, [1]),
-    Code.make(OpCode.OpSub),
-    Code.make(OpCode.OpPop),
-  ];
-  const expectedConstants = [new obj.Integer(1), new obj.Integer(2)];
-  const inputExpression = '1 - 2';
-
-  const { constants, instruction } = compileExpression(inputExpression);
-
-  expect(helper.testConstants(expectedConstants, constants)).toEqual(true);
-  expect(helper.testInstructions(expectedInstruction, instruction)).toEqual(
-    true
-  );
-});
-
-it('should compile multiplying two numbers', () => {
-  const expectedInstruction = [
-    Code.make(OpCode.OpConstant, [0]),
-    Code.make(OpCode.OpConstant, [1]),
-    Code.make(OpCode.OpMul),
-    Code.make(OpCode.OpPop),
-  ];
-  const expectedConstants = [new obj.Integer(1), new obj.Integer(2)];
-  const inputExpression = '1 * 2';
-
-  const { constants, instruction } = compileExpression(inputExpression);
-
-  expect(helper.testConstants(expectedConstants, constants)).toEqual(true);
-  expect(helper.testInstructions(expectedInstruction, instruction)).toEqual(
-    true
-  );
-});
-
-it('should compile dividing two numbers', () => {
-  const expectedInstruction = [
-    Code.make(OpCode.OpConstant, [0]),
-    Code.make(OpCode.OpConstant, [1]),
-    Code.make(OpCode.OpDiv),
-    Code.make(OpCode.OpPop),
-  ];
-  const expectedConstants = [new obj.Integer(2), new obj.Integer(1)];
-  const inputExpression = '2 / 1';
-
-  const { constants, instruction } = compileExpression(inputExpression);
-
-  expect(helper.testConstants(expectedConstants, constants)).toEqual(true);
-  expect(helper.testInstructions(expectedInstruction, instruction)).toEqual(
-    true
-  );
+    expect(helper.testConstants(constants, actual.constants)).toEqual(true);
+    expect(helper.testInstructions(instruction, actual.instruction)).toEqual(
+      true
+    );
+  });
 });
 
 it('should compile boolean expressions', () => {
-  const expectedInstruction = [
-    Code.make(OpCode.OpTrue),
-    Code.make(OpCode.OpPop),
+  const expected: {
+    instruction: Instruction[];
+    expression: string;
+  }[] = [
+    {
+      instruction: [Code.make(OpCode.OpTrue), Code.make(OpCode.OpPop)],
+      expression: 'true',
+    },
+    {
+      instruction: [Code.make(OpCode.OpFalse), Code.make(OpCode.OpPop)],
+      expression: 'false',
+    },
   ];
-  const expectedConstants = [new obj.Boolean(true)];
-  const inputExpression = 'true';
 
-  const { constants, instruction } = compileExpression(inputExpression);
-
-  expect(helper.testConstants(expectedConstants, constants)).toEqual(true);
-  expect(helper.testInstructions(expectedInstruction, instruction)).toEqual(
-    true
-  );
+  expected.forEach(({ instruction, expression }) => {
+    const actual = compileExpression(expression);
+    expect(helper.testInstructions(instruction, actual.instruction)).toEqual(
+      true
+    );
+  });
 });
