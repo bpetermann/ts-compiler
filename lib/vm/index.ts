@@ -1,7 +1,9 @@
 import { Object, ByteCode, OpCode, ObjectType } from '../../types';
 import { Instruction } from 'lib/code';
-import { Integer } from '../object';
 import * as obj from '../object';
+
+const TRUE = new obj.Boolean(true);
+const FALSE = new obj.Boolean(false);
 
 export default class VM {
   instruction: Instruction;
@@ -38,8 +40,15 @@ export default class VM {
         case OpCode.OpDiv:
           this.executeBinaryOperation(op);
           break;
+        case OpCode.OpTrue:
+          this.push(TRUE);
+          break;
+        case OpCode.OpFalse:
+          this.push(FALSE);
+          break;
         case OpCode.OpPop:
           this.pop();
+          break;
       }
     }
   }

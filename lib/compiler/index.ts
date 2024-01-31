@@ -58,6 +58,7 @@ export default class Compiler {
       case node instanceof ast.BooleanLiteral:
         const { value: booleanValue } = node as ast.BooleanLiteral;
         this.emit(booleanValue ? OpCode.OpTrue : OpCode.OpFalse);
+        break;
       default:
         return null;
     }

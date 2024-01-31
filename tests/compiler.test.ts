@@ -8,8 +8,6 @@ import { OpCode } from '../types';
 const compileExpression = (expression: string) => {
   const compiler = new Compiler();
   compiler.compile(helper.parse(expression));
-  console.log(helper.parse(expression).getString())
-
   return compiler.byteCode();
 };
 
