@@ -66,6 +66,23 @@ it('should apply boolean expressions', () => {
   const tests: [string, boolean][] = [
     ['true', true],
     ['false', false],
+    ['1 < 2', true],
+    ['1 > 2', false],
+    ['1 < 1', false],
+    ['1 > 1', false],
+    ['1 == 1', true],
+    ['1 != 1', false],
+    ['1 == 2', false],
+    ['1 != 2', true],
+    ['true == true', true],
+    ['false == false', true],
+    ['true == false', false],
+    ['true != false', true],
+    ['false != true', true],
+    ['(1 < 2) == true', true],
+    ['(1 < 2) == false', false],
+    ['(1 > 2) == true', false],
+    ['(1 > 2) == false', true],
   ];
 
   tests.forEach((test) => {
@@ -73,6 +90,9 @@ it('should apply boolean expressions', () => {
 
     const stackElement = getStackTop(actual);
     const result = testExpectedObject(new obj.Boolean(expected), stackElement);
+
+    console.log('ACTUAL: ', stackElement);
+    console.log('EXPECTED: ', expected);
 
     expect(result).toEqual(true);
   });

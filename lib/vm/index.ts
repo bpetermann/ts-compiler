@@ -46,6 +46,11 @@ export default class VM {
         case OpCode.OpFalse:
           this.push(FALSE);
           break;
+        case OpCode.OpEqual:
+        case OpCode.OpNotEqual:
+        case OpCode.OpGreaterThan:
+          this.executeComparison(op);
+          break;
         case OpCode.OpPop:
           this.pop();
           break;
@@ -57,7 +62,7 @@ export default class VM {
     op: OpCode,
     left: obj.Integer,
     right: obj.Integer
-  ) {
+  ): void {
     const leftValue = left.value;
     const rightValue = right.value;
 
@@ -83,7 +88,7 @@ export default class VM {
     this.push(new obj.Integer(result));
   }
 
-  executeBinaryOperation(op: OpCode) {
+  executeBinaryOperation(op: OpCode): void {
     const right = this.pop();
     const left = this.pop();
 
@@ -104,6 +109,68 @@ export default class VM {
       left as obj.Integer,
       right as obj.Integer
     );
+  }
+
+  executeIntegerComparison(
+    op: OpCode,
+    left: obj.Integer,
+    right: obj.Integer
+  ): void {
+    const rightValue = right.value;
+    const leftValue = left.value;
+
+    console.log("LEFT: ", leftValue)
+    console.log("OPERATOR: ", op)
+    console.log("RIGHT: ", rightValue)
+
+    switch (op) {
+      case OpCode.OpEqual:
+        this.push(this.booleanToBooleanObject(rightValue === leftValue));
+        break;
+      case OpCode.OpNotEqual:
+        this.push(this.booleanToBooleanObject(rightValue !== leftValue));
+        break;
+      case OpCode.OpGreaterThan:
+        this.push(this.booleanToBooleanObject(leftValue > rightValue));
+        break;
+      default:
+        throw new Error(`unknown integer operator: ${op}`);
+    }
+  }
+
+  executeComparison(op: OpCode): void {
+    const right = this.pop();
+    const left = this.pop();
+
+    const leftType = left.type();
+    const rightType = right.type();
+
+    if (
+      leftType === ObjectType.INTEGER_OBJ &&
+      rightType === ObjectType.INTEGER_OBJ
+    ) {
+      this.executeIntegerComparison(
+        op,
+        left as obj.Integer,
+        right as obj.Integer
+      );
+      return;
+    }
+
+    switch (op) {
+      case OpCode.OpEqual:
+        this.push(this.booleanToBooleanObject(right === left));
+        break;
+      case OpCode.OpNotEqual:
+        this.push(this.booleanToBooleanObject(right !== left));
+        break;
+      default:
+        throw new Error(`unknown operator: ${op}`);
+    }
+  }
+
+  booleanToBooleanObject(input: boolean): obj.Boolean {
+    return input ? TRUE : FALSE;
   }
 
   push(obj: Object): void {
