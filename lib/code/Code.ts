@@ -15,6 +15,9 @@ export default class Code {
     [OpCode.OpDiv]: { name: 'OpDiv', operandWidths: [] },
     [OpCode.OpTrue]: { name: 'OpTrue', operandWidths: [] },
     [OpCode.OpFalse]: { name: 'OpFalse', operandWidths: [] },
+    [OpCode.OpEqual]: { name: 'OpEqual', operandWidths: [] },
+    [OpCode.OpNotEqual]: { name: 'OpNotEqual', operandWidths: [] },
+    [OpCode.OpGreaterThan]: { name: 'OpGreaterThan', operandWidths: [] },
   };
 
   static lookUp(op: number): undefined | Definition {
