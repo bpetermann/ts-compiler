@@ -31,6 +31,12 @@ export default class Compiler {
           right: infixRight,
           operator,
         } = node as ast.InfixExpression;
+        if (operator === TokenType.LT) {
+          this.compileNode(infixRight);
+          this.compileNode(infixLeft);
+          this.emit(OpCode.OpGreaterThan);
+          return;
+        }
         this.compileNode(infixLeft);
         this.compileNode(infixRight);
         switch (operator) {
@@ -46,6 +52,16 @@ export default class Compiler {
           case TokenType.SLASH:
             this.emit(OpCode.OpDiv);
             break;
+          case TokenType.GT:
+            this.emit(OpCode.OpGreaterThan);
+            break;
+          case TokenType.EQ:
+            this.emit(OpCode.OpEqual);
+            break;
+          case TokenType.NOT_EQ:
+            this.emit(OpCode.OpNotEqual);
+            break;
+
           default:
             throw new Error(`unknown operator ${operator}`);
         }
