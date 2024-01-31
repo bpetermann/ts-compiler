@@ -91,3 +91,81 @@ it('should compile boolean expressions', () => {
     );
   });
 });
+
+it('should compile comparsion operators', () => {
+  const expected: {
+    instruction: Instruction[];
+    constants: obj.Integer[];
+    expression: string;
+  }[] = [
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpGreaterThan),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [new obj.Integer(1), new obj.Integer(2)],
+      expression: '1 > 2',
+    },
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpGreaterThan),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [new obj.Integer(2), new obj.Integer(1)],
+      expression: '1 < 2',
+    },
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpEqual),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [new obj.Integer(1), new obj.Integer(2)],
+      expression: '1 == 2',
+    },
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpNotEqual),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [new obj.Integer(1), new obj.Integer(2)],
+      expression: '1 != 2',
+    },
+    {
+      instruction: [
+        Code.make(OpCode.OpTrue),
+        Code.make(OpCode.OpFalse),
+        Code.make(OpCode.OpEqual),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [],
+      expression: 'true == false',
+    },
+    {
+      instruction: [
+        Code.make(OpCode.OpTrue),
+        Code.make(OpCode.OpFalse),
+        Code.make(OpCode.OpNotEqual),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [],
+      expression: 'true != false',
+    },
+  ];
+
+  expected.forEach(({ instruction, constants, expression }, i) => {
+    const actual = compileExpression(expression);
+
+    expect(helper.testConstants(constants, actual.constants)).toEqual(true);
+    expect(helper.testInstructions(instruction, actual.instruction)).toEqual(
+      true
+    );
+  });
+});
