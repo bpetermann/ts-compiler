@@ -18,6 +18,8 @@ const testExpectedObject = (expected: Object, actual: Object): boolean => {
   switch (expected.type()) {
     case ObjectType.INTEGER_OBJ:
       return helper.testIntegerObject(expected, actual);
+    case ObjectType.BOOLEAN_OBJ:
+      return helper.testBooleanObject(expected, actual);
   }
   return false;
 };
@@ -51,8 +53,26 @@ it('should apply advanced int arithmetic', () => {
   ];
 
   tests.forEach((test) => {
-    const stackElement = getStackTop(test[0]);
-    const result = testExpectedObject(new obj.Integer(test[1]), stackElement);
+    const [actual, expected] = test;
+
+    const stackElement = getStackTop(actual);
+    const result = testExpectedObject(new obj.Integer(expected), stackElement);
+
+    expect(result).toEqual(true);
+  });
+});
+
+it('should apply boolean expressions', () => {
+  const tests: [string, boolean][] = [
+    ['true', true],
+    ['false', false],
+  ];
+
+  tests.forEach((test) => {
+    const [actual, expected] = test;
+
+    const stackElement = getStackTop(actual);
+    const result = testExpectedObject(new obj.Boolean(expected), stackElement);
 
     expect(result).toEqual(true);
   });

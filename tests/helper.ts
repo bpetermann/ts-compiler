@@ -56,6 +56,11 @@ const testIntegerObject = (expected: Object, actual: Object) =>
   actual.type() === ObjectType.INTEGER_OBJ &&
   (expected as Integer).value === (actual as Integer).value;
 
+const testBooleanObject = (expected: Object, actual: Object) =>
+  expected.type() === ObjectType.BOOLEAN_OBJ &&
+  actual.type() === ObjectType.BOOLEAN_OBJ &&
+  (expected as Integer).value === (actual as Integer).value;
+
 const testConstants = (expected: Object[], actual: Object[]) => {
   for (let i = 0; i < expected.length; i++) {
     switch (expected[i].type()) {
@@ -84,6 +89,7 @@ export {
   parseAndEval,
   testInstructions,
   concatInstructions,
+  testBooleanObject,
   testIntegerObject,
   testConstants,
   compileExpression,
