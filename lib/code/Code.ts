@@ -18,6 +18,8 @@ export default class Code {
     [OpCode.OpEqual]: { name: 'OpEqual', operandWidths: [] },
     [OpCode.OpNotEqual]: { name: 'OpNotEqual', operandWidths: [] },
     [OpCode.OpGreaterThan]: { name: 'OpGreaterThan', operandWidths: [] },
+    [OpCode.OpMinus]: { name: 'OpMinus', operandWidths: [] },
+    [OpCode.OpBang]: { name: 'OpBang', operandWidths: [] },
   };
 
   static lookUp(op: number): undefined | Definition {
