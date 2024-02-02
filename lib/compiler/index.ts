@@ -25,6 +25,20 @@ export default class Compiler {
         this.compileNode((node as ast.ExpressionStatement).expression);
         this.emit(OpCode.OpPop);
         break;
+      case node instanceof ast.PrefixExpression:
+        const prefixNode = node as ast.PrefixExpression;
+        this.compileNode(prefixNode.right);
+        switch (prefixNode.operator) {
+          case TokenType.BANG:
+            this.emit(OpCode.OpBang);
+            break;
+          case TokenType.MINUS:
+            this.emit(OpCode.OpMinus);
+            break;
+          default:
+            throw new Error(`unknown operator ${prefixNode.operator}`);
+        }
+        break;
       case node instanceof ast.InfixExpression:
         const {
           left: infixLeft,

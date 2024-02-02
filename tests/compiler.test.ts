@@ -57,6 +57,15 @@ it('should compile integer arithmetics', () => {
       constants: [new obj.Integer(2), new obj.Integer(1)],
       expression: '2 / 1',
     },
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpMinus),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [new obj.Integer(1)],
+      expression: '-1',
+    },
   ];
 
   expected.forEach(({ instruction, constants, expression }) => {
@@ -157,6 +166,15 @@ it('should compile comparsion operators', () => {
       ],
       constants: [],
       expression: 'true != false',
+    },
+    {
+      instruction: [
+        Code.make(OpCode.OpTrue),
+        Code.make(OpCode.OpBang),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [],
+      expression: '!true',
     },
   ];
 
