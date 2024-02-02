@@ -21,10 +21,6 @@ export default class VM {
     this.stackPointer = 0;
   }
 
-  stackTop(): Object {
-    return !this.stackPointer ? null : this.stack[this.stackPointer - 1];
-  }
-
   run() {
     for (let ip = 0; ip < this.instruction.length(); ip++) {
       const op = this.instruction.getUint8(ip) as OpCode;
@@ -58,7 +54,39 @@ export default class VM {
     }
   }
 
-  executeBinaryIntegerOperation(
+  lastPoppedStackElem(): Object {
+    return this.stack[this.stackPointer];
+  }
+
+  private stackTop(): Object {
+    return !this.stackPointer ? null : this.stack[this.stackPointer - 1];
+  }
+
+  private isObjectTypeInteger(
+    type: ObjectType
+  ): type is ObjectType.INTEGER_OBJ {
+    return type === ObjectType.INTEGER_OBJ;
+  }
+
+  private booleanToBooleanObject(input: boolean): obj.Boolean {
+    return input ? TRUE : FALSE;
+  }
+
+  private push(obj: Object): void {
+    if (this.stackPointer > this.stackSize) {
+      throw new Error('stack overflow');
+    }
+    this.stack[this.stackPointer] = obj;
+    this.stackPointer++;
+  }
+
+  private pop(): Object {
+    const obj = this.stack[this.stackPointer - 1];
+    this.stackPointer--;
+    return obj;
+  }
+
+  private executeBinaryIntegerOperation(
     op: OpCode,
     left: obj.Integer,
     right: obj.Integer
@@ -88,19 +116,16 @@ export default class VM {
     this.push(new obj.Integer(result));
   }
 
-  executeBinaryOperation(op: OpCode): void {
+  private executeBinaryOperation(op: OpCode): void {
     const right = this.pop();
     const left = this.pop();
 
-    const leftType = left.type();
-    const rightType = right.type();
-
     if (
-      leftType !== ObjectType.INTEGER_OBJ &&
-      rightType !== ObjectType.INTEGER_OBJ
+      !this.isObjectTypeInteger(left.type()) ||
+      !this.isObjectTypeInteger(right.type())
     ) {
       throw new Error(
-        `unsupported types for binary operation: ${leftType} ${rightType}`
+        `unsupported types for binary operation: ${left.type()} ${right.type()}`
       );
     }
 
@@ -111,17 +136,13 @@ export default class VM {
     );
   }
 
-  executeIntegerComparison(
+  private executeIntegerComparison(
     op: OpCode,
     left: obj.Integer,
     right: obj.Integer
   ): void {
     const rightValue = right.value;
     const leftValue = left.value;
-
-    console.log("LEFT: ", leftValue)
-    console.log("OPERATOR: ", op)
-    console.log("RIGHT: ", rightValue)
 
     switch (op) {
       case OpCode.OpEqual:
@@ -138,16 +159,13 @@ export default class VM {
     }
   }
 
-  executeComparison(op: OpCode): void {
+  private executeComparison(op: OpCode): void {
     const right = this.pop();
     const left = this.pop();
 
-    const leftType = left.type();
-    const rightType = right.type();
-
     if (
-      leftType === ObjectType.INTEGER_OBJ &&
-      rightType === ObjectType.INTEGER_OBJ
+      this.isObjectTypeInteger(left.type()) &&
+      this.isObjectTypeInteger(right.type())
     ) {
       this.executeIntegerComparison(
         op,
@@ -167,27 +185,5 @@ export default class VM {
       default:
         throw new Error(`unknown operator: ${op}`);
     }
-  }
-
-  booleanToBooleanObject(input: boolean): obj.Boolean {
-    return input ? TRUE : FALSE;
-  }
-
-  push(obj: Object): void {
-    if (this.stackPointer > this.stackSize) {
-      throw new Error('stack overflow');
-    }
-    this.stack[this.stackPointer] = obj;
-    this.stackPointer++;
-  }
-
-  pop(): Object {
-    const obj = this.stack[this.stackPointer - 1];
-    this.stackPointer--;
-    return obj;
-  }
-
-  lastPoppedStackElem(): Object {
-    return this.stack[this.stackPointer];
   }
 }
