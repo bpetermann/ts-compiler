@@ -47,6 +47,12 @@ export default class VM {
         case OpCode.OpGreaterThan:
           this.executeComparison(op);
           break;
+        case OpCode.OpBang:
+          this.executeBangOperator();
+          break;
+        case OpCode.OpMinus:
+          this.executeMinusOperator();
+          break;
         case OpCode.OpPop:
           this.pop();
           break;
@@ -84,6 +90,32 @@ export default class VM {
     const obj = this.stack[this.stackPointer - 1];
     this.stackPointer--;
     return obj;
+  }
+
+  private executeBangOperator() {
+    const operand = this.pop();
+
+    switch (operand) {
+      case TRUE:
+        this.push(FALSE);
+        break;
+      case FALSE:
+        this.push(TRUE);
+        break;
+      default:
+        this.push(FALSE);
+        break;
+    }
+  }
+
+  private executeMinusOperator() {
+    const operand = this.pop();
+
+    if (!this.isObjectTypeInteger(operand.type())) {
+      throw new Error(`unsupported type for negation: ${operand.type()}`);
+    }
+    const value = (operand as obj.Integer).value;
+    this.push(new obj.Integer(-value));
   }
 
   private executeBinaryIntegerOperation(
