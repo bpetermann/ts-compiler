@@ -39,9 +39,11 @@ export default class Compiler {
       case node instanceof ast.IfExpression:
         this.compileNode((node as ast.IfExpression).condition);
         // Emit an `OpJumpNotTruthy` with a bogus value
-        this.emit(OpCode.OpJumpNotTruthy, [9999]);
+        const jumpNotTruthyPos = this.emit(OpCode.OpJumpNotTruthy, [9999]);
         this.compileNode((node as ast.IfExpression).consequence);
         if (this.lastInstructionIsPop()) this.removeLastPop();
+        const afterConsequencePos = Instruction.concatAll(this.instructions).length();
+        this.changeOperand(jumpNotTruthyPos, afterConsequencePos);
         break;
       case node instanceof ast.BlockStatement:
         (node as ast.BlockStatement).statements.forEach((stmt) =>
@@ -147,6 +149,18 @@ export default class Compiler {
       this.lastInstruction.position
     );
     this.lastInstruction = this.previousInstruction;
+  }
+
+  replaceInstruction(position: number, instruction: Instruction) {
+    const before = this.instructions.slice(0, position);
+    const after = this.instructions.slice(position + 1);
+    this.instructions = before.concat(instruction, after);
+  }
+
+  changeOperand(position: number, operand: number): void {
+    const op = this.instructions[position].getUint8(0);
+    const newInstruction = Code.make(op, [operand]);
+    this.replaceInstruction(position, newInstruction);
   }
 
   addInstruction(instruction: Instruction): number {
