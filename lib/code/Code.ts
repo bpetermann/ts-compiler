@@ -20,6 +20,8 @@ export default class Code {
     [OpCode.OpGreaterThan]: { name: 'OpGreaterThan', operandWidths: [] },
     [OpCode.OpMinus]: { name: 'OpMinus', operandWidths: [] },
     [OpCode.OpBang]: { name: 'OpBang', operandWidths: [] },
+    [OpCode.OpJumpNotTruthy]: { name: 'OpJumpNotTruthy', operandWidths: [2] },
+    [OpCode.OpJump]: { name: 'OpJump', operandWidths: [2] },
   };
 
   static lookUp(op: number): undefined | Definition {
