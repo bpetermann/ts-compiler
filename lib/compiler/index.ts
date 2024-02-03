@@ -1,4 +1,11 @@
-import { Object, NodeType, OpCode, ByteCode, TokenType } from '../../types';
+import {
+  Object,
+  NodeType,
+  OpCode,
+  ByteCode,
+  TokenType,
+  EmmitedInstruction,
+} from '../../types';
 import { Instruction } from '../code';
 import * as obj from '../object';
 import { Code } from '../code';
@@ -7,10 +14,14 @@ import * as ast from '../ast';
 export default class Compiler {
   instructions: Instruction[];
   constants: Object[];
+  lastInstruction: EmmitedInstruction;
+  previousInstruction: EmmitedInstruction;
 
   constructor() {
     this.instructions = [];
     this.constants = [];
+    this.lastInstruction = { opCode: null, position: null };
+    this.previousInstruction = { opCode: null, position: null };
   }
 
   compile(program: ast.Program) {
@@ -24,6 +35,18 @@ export default class Compiler {
       case node instanceof ast.ExpressionStatement:
         this.compileNode((node as ast.ExpressionStatement).expression);
         this.emit(OpCode.OpPop);
+        break;
+      case node instanceof ast.IfExpression:
+        this.compileNode((node as ast.IfExpression).condition);
+        // Emit an `OpJumpNotTruthy` with a bogus value
+        this.emit(OpCode.OpJumpNotTruthy, [9999]);
+        this.compileNode((node as ast.IfExpression).consequence);
+        if (this.lastInstructionIsPop()) this.removeLastPop();
+        break;
+      case node instanceof ast.BlockStatement:
+        (node as ast.BlockStatement).statements.forEach((stmt) =>
+          this.compileNode(stmt)
+        );
         break;
       case node instanceof ast.PrefixExpression:
         const prefixNode = node as ast.PrefixExpression;
@@ -102,7 +125,28 @@ export default class Compiler {
   emit(op: number, operands: number[] = []): number {
     const instruction = Code.make(op, operands);
     const position = this.addInstruction(instruction);
+    this.setLastInstruction(op, position);
     return position;
+  }
+
+  setLastInstruction(op: OpCode, position: number): void {
+    const previous = this.lastInstruction;
+    const last = { opCode: op, position };
+
+    this.previousInstruction = previous;
+    this.lastInstruction = last;
+  }
+
+  lastInstructionIsPop(): boolean {
+    return this.lastInstruction.opCode === OpCode.OpPop;
+  }
+
+  removeLastPop() {
+    this.instructions = this.instructions.slice(
+      0,
+      this.lastInstruction.position
+    );
+    this.lastInstruction = this.previousInstruction;
   }
 
   addInstruction(instruction: Instruction): number {

@@ -4,11 +4,24 @@ import { expect } from '@jest/globals';
 import * as obj from '../lib/object';
 import * as helper from './helper';
 import { OpCode } from '../types';
+import colors from 'colors';
 
 const compileExpression = (expression: string) => {
   const compiler = new Compiler();
   compiler.compile(helper.parse(expression));
   return compiler.byteCode();
+};
+
+const instructionComparisonLogger = (
+  expected: Instruction[],
+  actual: Instruction
+) => {
+  console.log(
+    `${colors.blue('Expected:')}\n${helper
+      .concatInstructions(expected)
+      .string()}`
+  );
+  console.log(`${colors.blue('Actual:')}\n${actual.string()}`);
 };
 
 it('should compile integer arithmetics', () => {
@@ -180,6 +193,38 @@ it('should compile comparsion operators', () => {
 
   expected.forEach(({ instruction, constants, expression }, i) => {
     const actual = compileExpression(expression);
+
+    expect(helper.testConstants(constants, actual.constants)).toEqual(true);
+    expect(helper.testInstructions(instruction, actual.instruction)).toEqual(
+      true
+    );
+  });
+});
+
+it('should compile conditionals', () => {
+  const expected: {
+    instruction: Instruction[];
+    constants: obj.Integer[];
+    expression: string;
+  }[] = [
+    {
+      instruction: [
+        Code.make(OpCode.OpTrue),
+        Code.make(OpCode.OpJumpNotTruthy, [7]),
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpPop),
+        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [new obj.Integer(10), new obj.Integer(3333)],
+      expression: 'if (true) { 10 }; 3333;',
+    },
+  ];
+
+  expected.forEach(({ instruction, constants, expression }, i) => {
+    const actual = compileExpression(expression);
+
+    instructionComparisonLogger(instruction, actual.instruction);
 
     expect(helper.testConstants(constants, actual.constants)).toEqual(true);
     expect(helper.testInstructions(instruction, actual.instruction)).toEqual(
