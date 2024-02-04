@@ -219,6 +219,24 @@ it('should compile conditionals', () => {
       constants: [new obj.Integer(10), new obj.Integer(3333)],
       expression: 'if (true) { 10 }; 3333;',
     },
+    {
+      instruction: [
+        Code.make(OpCode.OpTrue),
+        Code.make(OpCode.OpJumpNotTruthy, [10]),
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpJump, [13]),
+        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpPop),
+        Code.make(OpCode.OpConstant, [2]),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [
+        new obj.Integer(10),
+        new obj.Integer(20),
+        new obj.Integer(3333),
+      ],
+      expression: 'if (true) { 10 } else { 20 }; 3333;',
+    },
   ];
 
   expected.forEach(({ instruction, constants, expression }, i) => {

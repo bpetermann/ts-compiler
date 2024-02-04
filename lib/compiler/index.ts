@@ -37,16 +37,31 @@ export default class Compiler {
         this.emit(OpCode.OpPop);
         break;
       case node instanceof ast.IfExpression:
-        const { condition, consequence, alternative } = node as ast.IfExpression;
+        const { condition, consequence, alternative } =
+          node as ast.IfExpression;
         this.compileNode(condition);
         // Emit an `OpJumpNotTruthy` with a bogus value
         const jumpNotTruthyPos = this.emit(OpCode.OpJumpNotTruthy, [9999]);
         this.compileNode(consequence);
         if (this.lastInstructionIsPop()) this.removeLastPop();
-        const afterConsequencePos = Instruction.concatAll(
-          this.instructions
-        ).length();
-        this.changeOperand(jumpNotTruthyPos, afterConsequencePos);
+        if (!alternative) {
+          const afterConsequencePos = this.instructionLength();
+          this.changeOperand(jumpNotTruthyPos, afterConsequencePos);
+        } else {
+          // Emit an `OpJump` with a bogus value
+          const jumpPos = this.emit(OpCode.OpJump, [9999]);
+
+          const afterConsequencePos = this.instructionLength();
+          this.changeOperand(jumpNotTruthyPos, afterConsequencePos);
+
+          this.compileNode(alternative);
+
+          if (this.lastInstructionIsPop()) this.removeLastPop();
+
+          const afterAlternativePos = this.instructionLength();
+          this.changeOperand(jumpPos, afterAlternativePos);
+        }
+
         break;
       case node instanceof ast.BlockStatement:
         (node as ast.BlockStatement).statements.forEach((stmt) =>
@@ -144,6 +159,10 @@ export default class Compiler {
 
   lastInstructionIsPop(): boolean {
     return this.lastInstruction.opCode === OpCode.OpPop;
+  }
+
+  instructionLength(): number {
+    return Instruction.concatAll(this.instructions).length();
   }
 
   removeLastPop() {
