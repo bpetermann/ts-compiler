@@ -37,12 +37,15 @@ export default class Compiler {
         this.emit(OpCode.OpPop);
         break;
       case node instanceof ast.IfExpression:
-        this.compileNode((node as ast.IfExpression).condition);
+        const { condition, consequence, alternative } = node as ast.IfExpression;
+        this.compileNode(condition);
         // Emit an `OpJumpNotTruthy` with a bogus value
         const jumpNotTruthyPos = this.emit(OpCode.OpJumpNotTruthy, [9999]);
-        this.compileNode((node as ast.IfExpression).consequence);
+        this.compileNode(consequence);
         if (this.lastInstructionIsPop()) this.removeLastPop();
-        const afterConsequencePos = Instruction.concatAll(this.instructions).length();
+        const afterConsequencePos = Instruction.concatAll(
+          this.instructions
+        ).length();
         this.changeOperand(jumpNotTruthyPos, afterConsequencePos);
         break;
       case node instanceof ast.BlockStatement:
