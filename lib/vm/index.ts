@@ -53,6 +53,21 @@ export default class VM {
         case OpCode.OpMinus:
           this.executeMinusOperator();
           break;
+        case OpCode.OpJump:
+          {
+            const pos = this.instruction.getUint16(ip + 1);
+            ip = pos - 1;
+          }
+          break;
+        case OpCode.OpJumpNotTruthy:
+          const pos = this.instruction.getUint16(ip + 1);
+          ip += 2;
+          const condition = this.pop();
+          if (!this.isTruthy(condition)) {
+            console.log(this.instruction.length());
+            ip = pos - 1;
+          }
+          break;
         case OpCode.OpPop:
           this.pop();
           break;
@@ -216,6 +231,15 @@ export default class VM {
         break;
       default:
         throw new Error(`unknown operator: ${op}`);
+    }
+  }
+
+  isTruthy(obj: Object): boolean {
+    switch (obj.type()) {
+      case ObjectType.BOOLEAN_OBJ:
+        return (obj as obj.Boolean).value;
+      default:
+        return true;
     }
   }
 }
