@@ -81,6 +81,16 @@ const compileExpression = (expression: string) => {
   return compiler.byteCode();
 };
 
+const instructionComparisonLogger = (
+  expected: Instruction[],
+  actual: Instruction
+) => {
+  console.log(
+    `${colors.blue('Expected:')}\n${concatInstructions(expected).string()}`
+  );
+  console.log(`${colors.blue('Actual:')}\n${actual.string()}`);
+};
+
 export {
   cleanInspect,
   cleanStmt,
@@ -93,4 +103,5 @@ export {
   testIntegerObject,
   testConstants,
   compileExpression,
+  instructionComparisonLogger,
 };

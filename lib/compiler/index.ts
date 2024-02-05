@@ -40,28 +40,27 @@ export default class Compiler {
         const { condition, consequence, alternative } =
           node as ast.IfExpression;
         this.compileNode(condition);
+
         // Emit an `OpJumpNotTruthy` with a bogus value
         const jumpNotTruthyPos = this.emit(OpCode.OpJumpNotTruthy, [9999]);
         this.compileNode(consequence);
         if (this.lastInstructionIsPop()) this.removeLastPop();
+
+        // Emit an `OpJump` with a bogus value
+        const jumpPos = this.emit(OpCode.OpJump, [9999]);
+
+        const afterConsequencePos = this.instructionLength();
+        this.changeOperand(jumpNotTruthyPos, afterConsequencePos);
+
         if (!alternative) {
-          const afterConsequencePos = this.instructionLength();
-          this.changeOperand(jumpNotTruthyPos, afterConsequencePos);
+          this.emit(OpCode.OpNull);
         } else {
-          // Emit an `OpJump` with a bogus value
-          const jumpPos = this.emit(OpCode.OpJump, [9999]);
-
-          const afterConsequencePos = this.instructionLength();
-          this.changeOperand(jumpNotTruthyPos, afterConsequencePos);
-
           this.compileNode(alternative);
-
-          if (this.lastInstructionIsPop()) this.removeLastPop();
-
-          const afterAlternativePos = this.instructionLength();
-          this.changeOperand(jumpPos, afterAlternativePos);
         }
 
+        if (this.lastInstructionIsPop()) this.removeLastPop();
+        const afterAlternativePos = this.instructionLength();
+        this.changeOperand(jumpPos, afterAlternativePos);
         break;
       case node instanceof ast.BlockStatement:
         (node as ast.BlockStatement).statements.forEach((stmt) =>

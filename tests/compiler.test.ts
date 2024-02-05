@@ -4,24 +4,11 @@ import { expect } from '@jest/globals';
 import * as obj from '../lib/object';
 import * as helper from './helper';
 import { OpCode } from '../types';
-import colors from 'colors';
 
 const compileExpression = (expression: string) => {
   const compiler = new Compiler();
   compiler.compile(helper.parse(expression));
   return compiler.byteCode();
-};
-
-const instructionComparisonLogger = (
-  expected: Instruction[],
-  actual: Instruction
-) => {
-  console.log(
-    `${colors.blue('Expected:')}\n${helper
-      .concatInstructions(expected)
-      .string()}`
-  );
-  console.log(`${colors.blue('Actual:')}\n${actual.string()}`);
 };
 
 it('should compile integer arithmetics', () => {
@@ -210,8 +197,10 @@ it('should compile conditionals', () => {
     {
       instruction: [
         Code.make(OpCode.OpTrue),
-        Code.make(OpCode.OpJumpNotTruthy, [7]),
+        Code.make(OpCode.OpJumpNotTruthy, [10]),
         Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpJump, [11]),
+        Code.make(OpCode.OpNull),
         Code.make(OpCode.OpPop),
         Code.make(OpCode.OpConstant, [1]),
         Code.make(OpCode.OpPop),
