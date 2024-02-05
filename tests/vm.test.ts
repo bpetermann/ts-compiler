@@ -95,6 +95,7 @@ it('should apply boolean expressions', () => {
     ['!!true', true],
     ['!!false', false],
     ['!!5', true],
+    ['!(if (false) { 5; })', true],
   ];
 
   tests.forEach((test) => {
@@ -115,6 +116,7 @@ it('should apply if expressions', () => {
     ['if (1) { 10 }', 10],
     ['if (1 < 2) { 10 }', 10],
     ['if (1 < 2) { 10 } else { 20 }', 10],
+    ['if ((if (false) { 10 })) { 10 } else { 20 }', 20],
   ];
 
   tests.forEach((test) => {

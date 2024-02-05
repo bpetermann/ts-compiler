@@ -120,6 +120,9 @@ export default class VM {
       case FALSE:
         this.push(TRUE);
         break;
+      case NULL:
+        this.push(TRUE);
+        break;
       default:
         this.push(FALSE);
         break;
@@ -241,6 +244,8 @@ export default class VM {
     switch (obj.type()) {
       case ObjectType.BOOLEAN_OBJ:
         return (obj as obj.Boolean).value;
+      case ObjectType.NULL_OBJ:
+        return false;
       default:
         return true;
     }
