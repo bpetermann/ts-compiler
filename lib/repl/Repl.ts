@@ -33,7 +33,7 @@ export default class Repl {
     machine.run();
 
     const lastPoppedStackElem = machine.lastPoppedStackElem();
-    console.log(lastPoppedStackElem);
+    console.log(lastPoppedStackElem.inspect());
   }
 
   private processInput(input: string) {
