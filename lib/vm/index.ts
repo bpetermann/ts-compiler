@@ -4,6 +4,7 @@ import * as obj from '../object';
 
 const TRUE = new obj.Boolean(true);
 const FALSE = new obj.Boolean(false);
+const NULL = new obj.Null();
 
 export default class VM {
   instruction: Instruction;
@@ -64,9 +65,11 @@ export default class VM {
           ip += 2;
           const condition = this.pop();
           if (!this.isTruthy(condition)) {
-            console.log(this.instruction.length());
             ip = pos - 1;
           }
+          break;
+        case OpCode.OpNull:
+          this.push(NULL);
           break;
         case OpCode.OpPop:
           this.pop();

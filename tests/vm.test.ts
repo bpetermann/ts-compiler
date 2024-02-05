@@ -20,6 +20,8 @@ const testExpectedObject = (expected: Object, actual: Object): boolean => {
       return helper.testIntegerObject(expected, actual);
     case ObjectType.BOOLEAN_OBJ:
       return helper.testBooleanObject(expected, actual);
+    case ObjectType.NULL_OBJ:
+      return expected.type() === actual.type();
   }
   return false;
 };
@@ -105,7 +107,7 @@ it('should apply boolean expressions', () => {
   });
 });
 
-it('should apply conditional expressions', () => {
+it('should apply if expressions', () => {
   const tests: [string, number][] = [
     ['if (true) { 10 }', 10],
     ['if (true) { 10 } else { 20 }', 10],
@@ -113,7 +115,6 @@ it('should apply conditional expressions', () => {
     ['if (1) { 10 }', 10],
     ['if (1 < 2) { 10 }', 10],
     ['if (1 < 2) { 10 } else { 20 }', 10],
-    ['if (1 > 2) { 10 } else { 20 }', 20],
   ];
 
   tests.forEach((test) => {
@@ -121,6 +122,22 @@ it('should apply conditional expressions', () => {
 
     const stackElement = getStackTop(actual);
     const result = testExpectedObject(new obj.Integer(expected), stackElement);
+
+    expect(result).toEqual(true);
+  });
+});
+
+it('should apply if expressions without else', () => {
+  const tests: [string, Object][] = [
+    ['if (1 > 2) { 10 }', new obj.Null()],
+    ['if (false) { 10 }', new obj.Null()],
+  ];
+
+  tests.forEach((test) => {
+    const [actual, expected] = test;
+
+    const stackElement = getStackTop(actual);
+    const result = testExpectedObject(expected, stackElement);
 
     expect(result).toEqual(true);
   });
