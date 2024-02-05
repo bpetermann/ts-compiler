@@ -22,6 +22,7 @@ export default class Code {
     [OpCode.OpBang]: { name: 'OpBang', operandWidths: [] },
     [OpCode.OpJumpNotTruthy]: { name: 'OpJumpNotTruthy', operandWidths: [2] },
     [OpCode.OpJump]: { name: 'OpJump', operandWidths: [2] },
+    [OpCode.OpNull]: { name: 'OpNull', operandWidths: [] },
   };
 
   static lookUp(op: number): undefined | Definition {

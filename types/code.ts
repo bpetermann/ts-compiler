@@ -13,7 +13,8 @@ export enum OpCode {
   OpMinus,
   OpBang,
   OpJumpNotTruthy,
-  OpJump
+  OpJump,
+  OpNull,
 }
 
 export type Definition = { name: string; operandWidths: number[] };
