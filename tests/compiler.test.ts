@@ -237,3 +237,63 @@ it('should compile conditionals', () => {
     );
   });
 });
+
+it('should compile global let statements', () => {
+  const expected: {
+    instruction: Instruction[];
+    constants: obj.Integer[];
+    expression: string;
+  }[] = [
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpSetGlobal, [0]),
+        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpSetGlobal, [0]),
+      ],
+      constants: [new obj.Integer(1), new obj.Integer(2)],
+      expression: `
+      let one = 1;
+      let two = 2;
+      `,
+    },
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpSetGlobal, [0]),
+        Code.make(OpCode.OpGetGlobal, [0]),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [new obj.Integer(1)],
+      expression: `
+      let one = 1;
+      one;
+      `,
+    },
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpSetGlobal, [0]),
+        Code.make(OpCode.OpGetGlobal, [0]),
+        Code.make(OpCode.OpSetGlobal, [1]),
+        Code.make(OpCode.OpGetGlobal, [1]),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [new obj.Integer(1)],
+      expression: `
+      let one = 1;
+      let two = one;
+      two;
+      `,
+    },
+  ];
+
+  expected.forEach(({ instruction, constants, expression }, i) => {
+    const actual = compileExpression(expression);
+
+    expect(helper.testConstants(constants, actual.constants)).toEqual(true);
+    expect(helper.testInstructions(instruction, actual.instruction)).toEqual(
+      true
+    );
+  });
+});
