@@ -23,6 +23,8 @@ export default class Code {
     [OpCode.OpJumpNotTruthy]: { name: 'OpJumpNotTruthy', operandWidths: [2] },
     [OpCode.OpJump]: { name: 'OpJump', operandWidths: [2] },
     [OpCode.OpNull]: { name: 'OpNull', operandWidths: [] },
+    [OpCode.OpGetGlobal]: { name: 'OpGetGlobal', operandWidths: [2] },
+    [OpCode.OpSetGlobal]: { name: 'OpSetGlobal', operandWidths: [2] },
   };
 
   static lookUp(op: number): undefined | Definition {

@@ -15,6 +15,8 @@ export enum OpCode {
   OpJumpNotTruthy,
   OpJump,
   OpNull,
+  OpGetGlobal,
+  OpSetGlobal,
 }
 
 export type Definition = { name: string; operandWidths: number[] };
