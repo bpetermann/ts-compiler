@@ -1,1 +1,4 @@
-export type SymbolScope = string;
+export enum SymbolScope {
+    GlobalScope = 'GLOBAL',
+  }
+  

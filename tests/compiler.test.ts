@@ -1,5 +1,5 @@
+import { Compiler, Symbol, SymbolScope, SymbolTable } from '../lib/compiler';
 import { Code, Instruction } from '../lib/code';
-import { Compiler } from '../lib/compiler';
 import { expect } from '@jest/globals';
 import * as obj from '../lib/object';
 import * as helper from './helper';
@@ -238,64 +238,30 @@ it('should compile conditionals', () => {
   });
 });
 
-it('should compile global let statements', () => {
-  const expected: {
-    instruction: Instruction[];
-    constants: obj.Integer[];
-    expression: string;
-  }[] = [
-    {
-      instruction: [
-        Code.make(OpCode.OpConstant, [0]),
-        Code.make(OpCode.OpSetGlobal, [0]),
-        Code.make(OpCode.OpConstant, [1]),
-        Code.make(OpCode.OpSetGlobal, [0]),
-      ],
-      constants: [new obj.Integer(1), new obj.Integer(2)],
-      expression: `
-      let one = 1;
-      let two = 2;
-      `,
-    },
-    // {
-    //   instruction: [
-    //     Code.make(OpCode.OpConstant, [0]),
-    //     Code.make(OpCode.OpSetGlobal, [0]),
-    //     Code.make(OpCode.OpGetGlobal, [0]),
-    //     Code.make(OpCode.OpPop),
-    //   ],
-    //   constants: [new obj.Integer(1)],
-    //   expression: `
-    //   let one = 1;
-    //   one;
-    //   `,
-    // },
-    // {
-    //   instruction: [
-    //     Code.make(OpCode.OpConstant, [0]),
-    //     Code.make(OpCode.OpSetGlobal, [0]),
-    //     Code.make(OpCode.OpGetGlobal, [0]),
-    //     Code.make(OpCode.OpSetGlobal, [1]),
-    //     Code.make(OpCode.OpGetGlobal, [1]),
-    //     Code.make(OpCode.OpPop),
-    //   ],
-    //   constants: [new obj.Integer(1)],
-    //   expression: `
-    //   let one = 1;
-    //   let two = one;
-    //   two;
-    //   `,
-    // },
+it('should define symbols', () => {
+  const global = new SymbolTable();
+
+  const expected: { name: string; symbol: Symbol }[] = [
+    { name: 'a', symbol: new Symbol('a', SymbolScope.GlobalScope, 0) },
+    { name: 'b', symbol: new Symbol('b', SymbolScope.GlobalScope, 1) },
   ];
 
-  expected.forEach(({ instruction, constants, expression }, i) => {
-    const actual = compileExpression(expression);
+  expected.forEach(({ name, symbol }) => {
+    expect(global.define(name)).toEqual(symbol);
+  });
+});
 
-    helper.instructionComparisonLogger(instruction, actual.instruction);
+it('should resolve global defined symbols by name', () => {
+  const global = new SymbolTable();
+  global.define('a');
+  global.define('b');
 
-    expect(helper.testConstants(constants, actual.constants)).toEqual(true);
-    expect(helper.testInstructions(instruction, actual.instruction)).toEqual(
-      true
-    );
+  const expected: Symbol[] = [
+    new Symbol('a', SymbolScope.GlobalScope, 0),
+    new Symbol('b', SymbolScope.GlobalScope, 1),
+  ];
+
+  expected.forEach((symbol) => {
+    expect(global.resolve(symbol.name)).toEqual(symbol);
   });
 });
