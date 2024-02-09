@@ -1,7 +1,7 @@
 import { Environment, Integer } from '../lib/object';
 import { Object, ObjectType } from '../types';
+import { Compiler } from '../lib/compiler';
 import { Instruction } from '../lib/code';
-import Compiler from '../lib/compiler';
 import { Parser } from '../lib/parser';
 import { Program } from '../lib/ast';
 import { Eval } from '../lib/eval';

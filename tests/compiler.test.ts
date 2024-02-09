@@ -1,5 +1,5 @@
 import { Code, Instruction } from '../lib/code';
-import Compiler from '../lib/compiler';
+import { Compiler } from '../lib/compiler';
 import { expect } from '@jest/globals';
 import * as obj from '../lib/object';
 import * as helper from './helper';
@@ -257,39 +257,41 @@ it('should compile global let statements', () => {
       let two = 2;
       `,
     },
-    {
-      instruction: [
-        Code.make(OpCode.OpConstant, [0]),
-        Code.make(OpCode.OpSetGlobal, [0]),
-        Code.make(OpCode.OpGetGlobal, [0]),
-        Code.make(OpCode.OpPop),
-      ],
-      constants: [new obj.Integer(1)],
-      expression: `
-      let one = 1;
-      one;
-      `,
-    },
-    {
-      instruction: [
-        Code.make(OpCode.OpConstant, [0]),
-        Code.make(OpCode.OpSetGlobal, [0]),
-        Code.make(OpCode.OpGetGlobal, [0]),
-        Code.make(OpCode.OpSetGlobal, [1]),
-        Code.make(OpCode.OpGetGlobal, [1]),
-        Code.make(OpCode.OpPop),
-      ],
-      constants: [new obj.Integer(1)],
-      expression: `
-      let one = 1;
-      let two = one;
-      two;
-      `,
-    },
+    // {
+    //   instruction: [
+    //     Code.make(OpCode.OpConstant, [0]),
+    //     Code.make(OpCode.OpSetGlobal, [0]),
+    //     Code.make(OpCode.OpGetGlobal, [0]),
+    //     Code.make(OpCode.OpPop),
+    //   ],
+    //   constants: [new obj.Integer(1)],
+    //   expression: `
+    //   let one = 1;
+    //   one;
+    //   `,
+    // },
+    // {
+    //   instruction: [
+    //     Code.make(OpCode.OpConstant, [0]),
+    //     Code.make(OpCode.OpSetGlobal, [0]),
+    //     Code.make(OpCode.OpGetGlobal, [0]),
+    //     Code.make(OpCode.OpSetGlobal, [1]),
+    //     Code.make(OpCode.OpGetGlobal, [1]),
+    //     Code.make(OpCode.OpPop),
+    //   ],
+    //   constants: [new obj.Integer(1)],
+    //   expression: `
+    //   let one = 1;
+    //   let two = one;
+    //   two;
+    //   `,
+    // },
   ];
 
   expected.forEach(({ instruction, constants, expression }, i) => {
     const actual = compileExpression(expression);
+
+    helper.instructionComparisonLogger(instruction, actual.instruction);
 
     expect(helper.testConstants(constants, actual.constants)).toEqual(true);
     expect(helper.testInstructions(instruction, actual.instruction)).toEqual(

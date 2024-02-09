@@ -1,6 +1,6 @@
 import { TokenType } from '../../types';
+import { Compiler } from '../compiler';
 import { Parser } from '../parser';
-import Compiler from '../compiler';
 import readline from 'readline';
 import colors from 'colors';
 import VM from '../vm';
