@@ -3,4 +3,5 @@ export * from './code';
 export * from './compiler';
 export * from './error';
 export * from './object';
+export * from './symbol';
 export * from './token';
