@@ -249,7 +249,7 @@ it('should compile global let statements', () => {
         Code.make(OpCode.OpConstant, [0]),
         Code.make(OpCode.OpSetGlobal, [0]),
         Code.make(OpCode.OpConstant, [1]),
-        Code.make(OpCode.OpSetGlobal, [0]),
+        Code.make(OpCode.OpSetGlobal, [1]),
       ],
       constants: [new obj.Integer(1), new obj.Integer(2)],
       expression: `
