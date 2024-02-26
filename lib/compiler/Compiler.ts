@@ -27,6 +27,13 @@ export default class Compiler {
     this.symbolTable = new SymbolTable();
   }
 
+  newWithState(s: SymbolTable, constants: Object[]) {
+    const compiler = new Compiler();
+    compiler.symbolTable = s;
+    compiler.constants = constants;
+    return compiler;
+  }
+
   compile(program: ast.Program) {
     for (const statement of program.statements) {
       this.compileNode(statement);

@@ -1,28 +1,40 @@
 import { Object, ByteCode, OpCode, ObjectType } from '../../types';
-import { Instruction } from 'lib/code';
+import { Instruction } from '../code';
 import * as obj from '../object';
+
+const GLOBALS_SIZE = 65536;
+const STACK_SIZE = 2048;
 
 const TRUE = new obj.Boolean(true);
 const FALSE = new obj.Boolean(false);
 const NULL = new obj.Null();
-const GlobalsSize = 65536;
 
 export default class VM {
   instruction: Instruction;
   constants: Object[];
   private stackSize: number;
+  globalSize: number;
   private stack: Object[];
   private stackPointer: number;
   private globals: Object[];
 
-  constructor(byteCode: ByteCode) {
+  constructor(
+    byteCode: ByteCode = { instruction: new Instruction(0), constants: [] }
+  ) {
     const { instruction, constants } = byteCode;
-    this.constants = constants;
     this.instruction = instruction;
-    this.stackSize = 2048;
+    this.constants = constants;
+    this.stackSize = STACK_SIZE;
+    this.globalSize = GLOBALS_SIZE;
     this.stack = [];
     this.stackPointer = 0;
-    this.globals = new Array(GlobalsSize);
+    this.globals = new Array(GLOBALS_SIZE);
+  }
+
+  public newWithGlobalStore(bytecode: ByteCode, s: Object[]): VM {
+    const vm = new VM(bytecode);
+    vm.globals = s;
+    return vm;
   }
 
   run() {
@@ -93,10 +105,6 @@ export default class VM {
 
   lastPoppedStackElem(): Object {
     return this.stack[this.stackPointer];
-  }
-
-  private stackTop(): Object {
-    return !this.stackPointer ? null : this.stack[this.stackPointer - 1];
   }
 
   private isObjectTypeInteger(
