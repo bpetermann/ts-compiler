@@ -5,6 +5,7 @@ import * as obj from '../object';
 const TRUE = new obj.Boolean(true);
 const FALSE = new obj.Boolean(false);
 const NULL = new obj.Null();
+const GlobalsSize = 65536;
 
 export default class VM {
   instruction: Instruction;
@@ -12,6 +13,7 @@ export default class VM {
   private stackSize: number;
   private stack: Object[];
   private stackPointer: number;
+  globals: Object[];
 
   constructor(byteCode: ByteCode) {
     const { instruction, constants } = byteCode;
@@ -20,6 +22,7 @@ export default class VM {
     this.stackSize = 2048;
     this.stack = [];
     this.stackPointer = 0;
+    this.globals = new Array(GlobalsSize);
   }
 
   run() {
@@ -67,6 +70,16 @@ export default class VM {
           if (!this.isTruthy(condition)) {
             ip = pos - 1;
           }
+          break;
+        case OpCode.OpSetGlobal:
+          const globalIndex = this.instruction.getUint16(ip + 1);
+          ip += 2;
+          this.globals[globalIndex] = this.pop();
+          break;
+        case OpCode.OpGetGlobal:
+          const index = this.instruction.getUint16(ip + 1);
+          ip += 2;
+          this.push(this.globals[index]);
           break;
         case OpCode.OpNull:
           this.push(NULL);

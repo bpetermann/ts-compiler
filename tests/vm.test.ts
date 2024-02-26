@@ -144,3 +144,20 @@ it('should apply if expressions without else', () => {
     expect(result).toEqual(true);
   });
 });
+
+it('should apply global let statements', () => {
+  const tests: [string, number][] = [
+    ['let one = 1; one', 1],
+    ['let one = 1; let two = 2; one + two', 3],
+    ['let one = 1; let two = one + one; one + two', 3],
+  ];
+
+  tests.forEach((test) => {
+    const [actual, expected] = test;
+
+    const stackElement = getStackTop(actual);
+    const result = testExpectedObject(new obj.Integer(expected), stackElement);
+
+    expect(result).toEqual(true);
+  });
+});

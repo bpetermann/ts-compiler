@@ -290,8 +290,6 @@ it('should compile global let statements', () => {
   expected.forEach(({ instruction, constants, expression }, i) => {
     const actual = compileExpression(expression);
 
-    helper.instructionComparisonLogger(instruction, actual.instruction);
-
     expect(helper.testConstants(constants, actual.constants)).toEqual(true);
     expect(helper.testInstructions(instruction, actual.instruction)).toEqual(
       true
