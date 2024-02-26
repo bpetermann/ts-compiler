@@ -13,7 +13,7 @@ export default class VM {
   private stackSize: number;
   private stack: Object[];
   private stackPointer: number;
-  globals: Object[];
+  private globals: Object[];
 
   constructor(byteCode: ByteCode) {
     const { instruction, constants } = byteCode;

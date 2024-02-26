@@ -6,7 +6,7 @@
     "build": "tsc",
     "start": "node ./app/index.js",
     "fresh": "npm i && npm run build",
-    "build-start": "npm run build && npm start",
+    "build:start": "npm run build && npm start",
     "test": "jest"
   },
   "author": "bpetermann",
