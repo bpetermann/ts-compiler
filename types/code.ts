@@ -17,6 +17,7 @@ export enum OpCode {
   OpNull,
   OpGetGlobal,
   OpSetGlobal,
+  OPArray
 }
 
 export type Definition = { name: string; operandWidths: number[] };

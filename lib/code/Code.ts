@@ -25,6 +25,7 @@ export default class Code {
     [OpCode.OpNull]: { name: 'OpNull', operandWidths: [] },
     [OpCode.OpGetGlobal]: { name: 'OpGetGlobal', operandWidths: [2] },
     [OpCode.OpSetGlobal]: { name: 'OpSetGlobal', operandWidths: [2] },
+    [OpCode.OPArray]: { name: 'OPArray', operandWidths: [2] },
   };
 
   static lookUp(op: number): undefined | Definition {
