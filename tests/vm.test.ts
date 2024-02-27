@@ -25,14 +25,12 @@ const testExpectedObject = (expected: Object, actual: Object): boolean => {
     case ObjectType.STRING_OBJ:
       return helper.testStringObject(expected, actual);
     case ObjectType.ARRAY_OBJ:
-      const expectArray = (expected as obj.Array).elements;
       if (actual.type() !== ObjectType.ARRAY_OBJ) return false;
+      const expectedArray = (expected as obj.Array).elements;
       const actualArray = (actual as obj.Array).elements;
-      if (expectArray.length !== actualArray.length) return false;
-      expectArray.forEach((el, i) => {
-        if (!helper.testIntegerObject(el, actualArray[i])) return false;
-      });
-      return true;
+      return expectedArray.every((el, i) =>
+        helper.testIntegerObject(el, actualArray[i])
+      );
   }
   return false;
 };
