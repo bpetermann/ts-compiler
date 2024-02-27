@@ -22,6 +22,8 @@ const testExpectedObject = (expected: Object, actual: Object): boolean => {
       return helper.testBooleanObject(expected, actual);
     case ObjectType.NULL_OBJ:
       return expected.type() === actual.type();
+    case ObjectType.STRING_OBJ:
+      return helper.testStringObject(expected, actual);
   }
   return false;
 };
@@ -157,6 +159,23 @@ it('should apply global let statements', () => {
 
     const stackElement = getStackTop(actual);
     const result = testExpectedObject(new obj.Integer(expected), stackElement);
+
+    expect(result).toEqual(true);
+  });
+});
+
+it('should apply string expressions', () => {
+  const tests: [string, string][] = [
+    ['"monkey"', 'monkey'],
+    [`"mon" + "key"`, 'monkey'],
+    [`"mon" + "key" + "banana"`, 'monkeybanana'],
+  ];
+
+  tests.forEach((test) => {
+    const [actual, expected] = test;
+
+    const stackElement = getStackTop(actual);
+    const result = testExpectedObject(new obj.String(expected), stackElement);
 
     expect(result).toEqual(true);
   });

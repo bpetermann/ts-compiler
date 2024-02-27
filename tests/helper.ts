@@ -107,6 +107,7 @@ export {
   concatInstructions,
   testBooleanObject,
   testIntegerObject,
+  testStringObject,
   testConstants,
   compileExpression,
   instructionComparisonLogger,

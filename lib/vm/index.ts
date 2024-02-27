@@ -190,24 +190,45 @@ export default class VM {
     this.push(new obj.Integer(result));
   }
 
+  executeBinaryStringOperation(
+    op: OpCode,
+    left: obj.String,
+    right: obj.String
+  ): void {
+    if (op !== OpCode.OpAdd) throw new Error(`unknown string operator ${op}`);
+
+    this.push(new obj.String(left.value + right.value));
+  }
+
   private executeBinaryOperation(op: OpCode): void {
     const right = this.pop();
     const left = this.pop();
 
-    if (
-      !this.isObjectTypeInteger(left.type()) ||
-      !this.isObjectTypeInteger(right.type())
-    ) {
-      throw new Error(
-        `unsupported types for binary operation: ${left.type()} ${right.type()}`
-      );
-    }
+    const leftType = left.type();
+    const rightType = right.type();
 
-    this.executeBinaryIntegerOperation(
-      op,
-      left as obj.Integer,
-      right as obj.Integer
-    );
+    switch (true) {
+      case this.isObjectTypeInteger(left.type()) &&
+        this.isObjectTypeInteger(right.type()):
+        this.executeBinaryIntegerOperation(
+          op,
+          left as obj.Integer,
+          right as obj.Integer
+        );
+        break;
+      case leftType === ObjectType.STRING_OBJ &&
+        rightType === ObjectType.STRING_OBJ:
+        this.executeBinaryStringOperation(
+          op,
+          left as obj.String,
+          right as obj.String
+        );
+        break;
+      default:
+        throw new Error(
+          `unsupported types for binary operation: ${left.type()} ${right.type()}`
+        );
+    }
   }
 
   private executeIntegerComparison(

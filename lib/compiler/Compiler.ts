@@ -6,7 +6,7 @@ import {
   TokenType,
   EmmitedInstruction,
 } from '../../types';
-import { SymbolTable } from './symbol';
+import { SymbolTable } from './Symbol';
 import { Instruction } from '../code';
 import * as obj from '../object';
 import { Code } from '../code';
