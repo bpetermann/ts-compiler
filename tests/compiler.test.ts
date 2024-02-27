@@ -324,3 +324,36 @@ it('should resolve global defined symbols by name', () => {
     expect(global.resolve(symbol.name)).toEqual(symbol);
   });
 });
+
+it('should compile strings', () => {
+  const expected: {
+    instruction: Instruction[];
+    constants: obj.String[];
+    expression: string;
+  }[] = [
+    {
+      instruction: [Code.make(OpCode.OpConstant, [0]), Code.make(OpCode.OpPop)],
+      constants: [new obj.String('monkey')],
+      expression: `"monkey"`,
+    },
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpAdd),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [new obj.String('mon'), new obj.String('key')],
+      expression: `"mon" + "key"`,
+    },
+  ];
+
+  expected.forEach(({ instruction, constants, expression }, i) => {
+    const actual = compileExpression(expression);
+
+    expect(helper.testConstants(constants, actual.constants)).toEqual(true);
+    expect(helper.testInstructions(instruction, actual.instruction)).toEqual(
+      true
+    );
+  });
+});

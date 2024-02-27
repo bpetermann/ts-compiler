@@ -1,4 +1,4 @@
-import { Environment, Integer } from '../lib/object';
+import { Environment, Integer, String } from '../lib/object';
 import { Object, ObjectType } from '../types';
 import { Compiler } from '../lib/compiler';
 import { Instruction } from '../lib/code';
@@ -56,6 +56,11 @@ const testIntegerObject = (expected: Object, actual: Object) =>
   actual.type() === ObjectType.INTEGER_OBJ &&
   (expected as Integer).value === (actual as Integer).value;
 
+const testStringObject = (expected: Object, actual: Object) =>
+  expected.type() === ObjectType.STRING_OBJ &&
+  actual.type() === ObjectType.STRING_OBJ &&
+  (expected as String).value === (actual as String).value;
+
 const testBooleanObject = (expected: Object, actual: Object) =>
   expected.type() === ObjectType.BOOLEAN_OBJ &&
   actual.type() === ObjectType.BOOLEAN_OBJ &&
@@ -65,9 +70,10 @@ const testConstants = (expected: Object[], actual: Object[]) => {
   for (let i = 0; i < expected.length; i++) {
     switch (expected[i].type()) {
       case ObjectType.INTEGER_OBJ:
-        if (!testIntegerObject(expected[i], actual[i])) {
-          return false;
-        }
+        if (!testIntegerObject(expected[i], actual[i])) return false;
+        break;
+      case ObjectType.STRING_OBJ:
+        if (!testStringObject(expected[i], actual[i])) return false;
         break;
     }
   }

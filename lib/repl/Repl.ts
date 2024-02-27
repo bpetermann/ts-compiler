@@ -51,7 +51,7 @@ export default class Repl {
     const machine = this.vm.newWithGlobalStore(code, this.globals);
     machine.run();
     const lastPoppedStackElem = machine.lastPoppedStackElem();
-
+    
     console.log(lastPoppedStackElem.inspect());
   }
 
@@ -76,9 +76,9 @@ export default class Repl {
     );
 
     compiler.compile(program);
-    const code = compiler.byteCode();
-    this.constants = code.constants;
+    const byteCode = compiler.byteCode();
+    this.constants = byteCode.constants;
 
-    return code;
+    return byteCode;
   }
 }
