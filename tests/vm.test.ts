@@ -24,6 +24,15 @@ const testExpectedObject = (expected: Object, actual: Object): boolean => {
       return expected.type() === actual.type();
     case ObjectType.STRING_OBJ:
       return helper.testStringObject(expected, actual);
+    case ObjectType.ARRAY_OBJ:
+      const expectArray = (expected as obj.Array).elements;
+      if (actual.type() !== ObjectType.ARRAY_OBJ) return false;
+      const actualArray = (actual as obj.Array).elements;
+      if (expectArray.length !== actualArray.length) return false;
+      expectArray.forEach((el, i) => {
+        if (!helper.testIntegerObject(el, actualArray[i])) return false;
+      });
+      return true;
   }
   return false;
 };
@@ -176,6 +185,25 @@ it('should apply string expressions', () => {
 
     const stackElement = getStackTop(actual);
     const result = testExpectedObject(new obj.String(expected), stackElement);
+
+    expect(result).toEqual(true);
+  });
+});
+
+it('should apply array literals', () => {
+  const tests: [string, number[]][] = [
+    ['[]', []],
+    ['[1, 2, 3]', [1, 2, 3]],
+    ['[1 + 2, 3 * 4, 5 + 6]', [3, 12, 11]],
+  ];
+
+  tests.forEach((test) => {
+    const [actual, expected] = test;
+
+    const result = testExpectedObject(
+      new obj.Array(expected.map((el) => new obj.Integer(el))),
+      getStackTop(actual)
+    );
 
     expect(result).toEqual(true);
   });

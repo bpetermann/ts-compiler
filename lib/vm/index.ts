@@ -96,11 +96,33 @@ export default class VM {
         case OpCode.OpNull:
           this.push(NULL);
           break;
+        case OpCode.OpArray:
+          const numElements = this.instruction.getUint16(ip + 1);
+          ip += 2;
+
+          const array = this.buildArray(
+            this.stackPointer - numElements,
+            this.stackPointer
+          );
+          this.push(array);
+          break;
         case OpCode.OpPop:
           this.pop();
           break;
       }
     }
+  }
+
+  buildArray(startIndex: number, endIndex: number): Object {
+
+    const elements: Object[] = new Array(endIndex - startIndex);
+
+    for (let i = startIndex; i < endIndex; i++) {
+      elements[i - startIndex] = this.stack[i];
+    }
+
+    console.log(new obj.Array(elements))
+    return new obj.Array(elements);
   }
 
   lastPoppedStackElem(): Object {
