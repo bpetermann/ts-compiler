@@ -161,6 +161,11 @@ export default class Compiler {
         const { value: booleanValue } = node as ast.BooleanLiteral;
         this.emit(booleanValue ? OpCode.OpTrue : OpCode.OpFalse);
         break;
+      case node instanceof ast.ArrayLiteral:
+        const arrayNode = node as ast.ArrayLiteral;
+        arrayNode.elements.forEach((el) => this.compileNode(el));
+        this.emit(OpCode.OpArray, [arrayNode.elements.length]);
+        break;
       default:
         return null;
     }

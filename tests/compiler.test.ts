@@ -357,3 +357,69 @@ it('should compile strings', () => {
     );
   });
 });
+
+it('should compile array literals', () => {
+  const expected: {
+    instruction: Instruction[];
+    constants: obj.Array[];
+    expression: string;
+  }[] = [
+    {
+      instruction: [Code.make(OpCode.OpArray), Code.make(OpCode.OpPop)],
+      constants: [new obj.Array([])],
+      expression: '[]',
+    },
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpConstant, [2]),
+        Code.make(OpCode.OpArray, [3]),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [
+        new obj.Array([
+          new obj.Integer(1),
+          new obj.Integer(2),
+          new obj.Integer(3),
+        ]),
+      ],
+      expression: '[1,2,3]',
+    },
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpAdd),
+        Code.make(OpCode.OpConstant, [2]),
+        Code.make(OpCode.OpConstant, [3]),
+        Code.make(OpCode.OpSub),
+        Code.make(OpCode.OpConstant, [4]),
+        Code.make(OpCode.OpConstant, [5]),
+        Code.make(OpCode.OpMul),
+        Code.make(OpCode.OpArray, [3]),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [
+        new obj.Array([
+          new obj.Integer(1),
+          new obj.Integer(2),
+          new obj.Integer(3),
+          new obj.Integer(4),
+          new obj.Integer(5),
+          new obj.Integer(6),
+        ]),
+      ],
+      expression: '[1 + 2, 3 - 4, 5 * 6]',
+    },
+  ];
+
+  expected.forEach(({ instruction, constants, expression }) => {
+    const actual = compileExpression(expression);
+
+    expect(helper.testConstants(constants, actual.constants)).toEqual(true);
+    expect(helper.testInstructions(instruction, actual.instruction)).toEqual(
+      true
+    );
+  });
+});
