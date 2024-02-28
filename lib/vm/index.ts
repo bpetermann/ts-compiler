@@ -114,14 +114,11 @@ export default class VM {
   }
 
   buildArray(startIndex: number, endIndex: number): Object {
-
     const elements: Object[] = new Array(endIndex - startIndex);
 
     for (let i = startIndex; i < endIndex; i++) {
       elements[i - startIndex] = this.stack[i];
     }
-
-    console.log(new obj.Array(elements))
     return new obj.Array(elements);
   }
 

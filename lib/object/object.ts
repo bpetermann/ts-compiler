@@ -121,7 +121,7 @@ class String implements Object {
   }
 
   inspect(): string {
-    return colors.cyan(this.value);
+    return colors.cyan(`"${this.value}"`);
   }
 }
 
@@ -146,7 +146,7 @@ class Array implements Object {
 
   inspect(): string {
     return colors.magenta(
-      `[${this.elements.map((el) => el.inspect()).join(',')}]`
+      `[${this.elements.map((el) => el.inspect()).join(', ')}]`
     );
   }
 }
