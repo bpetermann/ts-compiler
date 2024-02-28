@@ -8,6 +8,7 @@ const STACK_SIZE = 2048;
 const TRUE = new obj.Boolean(true);
 const FALSE = new obj.Boolean(false);
 const NULL = new obj.Null();
+const HASHKEY = new obj.HashKey();
 
 export default class VM {
   instruction: Instruction;
@@ -106,11 +107,40 @@ export default class VM {
           );
           this.push(array);
           break;
+        case OpCode.OpHash:
+          const elements = this.instruction.getUint16(ip + 1);
+          ip += 2;
+
+          const hash = this.buildHash(
+            this.stackPointer - elements,
+            this.stackPointer
+          );
+          this.stackPointer = this.stackPointer - elements;
+
+          this.push(hash);
+          break;
         case OpCode.OpPop:
           this.pop();
           break;
       }
     }
+  }
+  buildHash(startIndex: number, endIndex: number): obj.Hash {
+    const pairs = new Map();
+
+    for (let i = startIndex; i < endIndex; i += 2) {
+      const key = this.stack[i];
+      const value = this.stack[i + 1];
+
+      if (!HASHKEY.hashable(key))
+        throw new Error(`unusable as hash key: ${key}`);
+
+      const hash = HASHKEY.hash(key);
+      const pair = new obj.HashPair(key, value);
+      pairs.set(hash, pair);
+    }
+
+    return new obj.Hash(pairs);
   }
 
   buildArray(startIndex: number, endIndex: number): Object {

@@ -51,7 +51,7 @@ export default class Repl {
     const machine = this.vm.newWithGlobalStore(code, this.globals);
     machine.run();
     const lastPoppedStackElem = machine.lastPoppedStackElem();
-    
+
     console.log(lastPoppedStackElem.inspect());
   }
 

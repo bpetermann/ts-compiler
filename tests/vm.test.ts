@@ -31,8 +31,24 @@ const testExpectedObject = (expected: Object, actual: Object): boolean => {
       return expectedArray.every((el, i) =>
         helper.testIntegerObject(el, actualArray[i])
       );
+    case ObjectType.HASH_OBJ:
+      if (actual.type() !== ObjectType.HASH_OBJ) return false;
+      const expectedHash = (expected as obj.Hash).pairs;
+      const actualhash = (actual as obj.Hash).pairs;
+      expectedHash.forEach((val, key) => {
+        const actualValue = actualhash.get(key);
+        if (
+          actualValue === undefined ||
+          !(actualValue instanceof obj.Integer) ||
+          !helper.testIntegerObject(val, actualValue)
+        ) {
+          return false;
+        }
+      });
+      return true;
+    default:
+      return false;
   }
-  return false;
 };
 
 it('should apply int arithmetic', () => {
@@ -202,6 +218,51 @@ it('should apply array literals', () => {
       new obj.Array(expected.map((el) => new obj.Integer(el))),
       getStackTop(actual)
     );
+
+    expect(result).toEqual(true);
+  });
+});
+
+it('should apply hash literals', () => {
+  const HASHKEY = new obj.HashKey();
+
+  const tests: [string, any][] = [
+    ['{}', new obj.Hash(new Map())],
+    [
+      '{1: 2, 2: 3}',
+      new obj.Hash(
+        new Map()
+          .set(
+            HASHKEY.hash(new obj.Integer(1)),
+            new obj.HashPair(new obj.Integer(1), new obj.Integer(2))
+          )
+          .set(
+            HASHKEY.hash(new obj.Integer(2)),
+            new obj.HashPair(new obj.Integer(2), new obj.Integer(3))
+          )
+      ),
+    ],
+    [
+      '{1 + 1: 2 * 2, 3 + 3: 4 * 4}',
+      new obj.Hash(
+        new Map()
+          .set(
+            HASHKEY.hash(new obj.Integer(2)),
+            new obj.HashPair(new obj.Integer(2), new obj.Integer(4))
+          )
+          .set(
+            HASHKEY.hash(new obj.Integer(6)),
+            new obj.HashPair(new obj.Integer(6), new obj.Integer(16))
+          )
+      ),
+    ],
+  ];
+
+  tests.forEach((test) => {
+    const [actual, expected] = test;
+
+    const stackElement = getStackTop(actual);
+    const result = testExpectedObject(expected, stackElement);
 
     expect(result).toEqual(true);
   });
