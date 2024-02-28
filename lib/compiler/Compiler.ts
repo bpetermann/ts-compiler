@@ -5,6 +5,7 @@ import {
   ByteCode,
   TokenType,
   EmmitedInstruction,
+  Expression,
 } from '../../types';
 import { SymbolTable } from './Symbol';
 import { Instruction } from '../code';
@@ -165,6 +166,19 @@ export default class Compiler {
         const arrayNode = node as ast.ArrayLiteral;
         arrayNode.elements.forEach((el) => this.compileNode(el));
         this.emit(OpCode.OpArray, [arrayNode.elements.length]);
+        break;
+      case node instanceof ast.HashLiteral:
+        const hashNode = node as ast.HashLiteral;
+        const keys: Expression[] = [];
+        hashNode.pairs.forEach((_, key) => keys.push(key));
+        keys
+          .sort((a, b) => a.getString().localeCompare(b.getString()))
+          .forEach((key) => {
+            this.compileNode(key);
+            this.compileNode(hashNode.pairs.get(key));
+          });
+
+        this.emit(OpCode.OpHash, [hashNode.pairs.size * 2]);
         break;
       default:
         return null;

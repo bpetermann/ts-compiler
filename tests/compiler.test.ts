@@ -1,9 +1,9 @@
 import { Compiler, Symbol, SymbolScope, SymbolTable } from '../lib/compiler';
 import { Code, Instruction } from '../lib/code';
+import { OpCode, Object } from '../types';
 import { expect } from '@jest/globals';
 import * as obj from '../lib/object';
 import * as helper from './helper';
-import { OpCode } from '../types';
 
 const compileExpression = (expression: string) => {
   const compiler = new Compiler();
@@ -411,6 +411,76 @@ it('should compile array literals', () => {
         ]),
       ],
       expression: '[1 + 2, 3 - 4, 5 * 6]',
+    },
+  ];
+
+  expected.forEach(({ instruction, constants, expression }) => {
+    const actual = compileExpression(expression);
+
+    expect(helper.testConstants(constants, actual.constants)).toEqual(true);
+    expect(helper.testInstructions(instruction, actual.instruction)).toEqual(
+      true
+    );
+  });
+});
+
+it('should compile hash literals', () => {
+  const expected: {
+    instruction: Instruction[];
+    constants: Object[];
+    expression: string;
+  }[] = [
+    {
+      instruction: [Code.make(OpCode.OpHash), Code.make(OpCode.OpPop)],
+      constants: [new obj.Hash(new Map<number, obj.HashPair>())],
+      expression: '{}',
+    },
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpConstant, [2]),
+        Code.make(OpCode.OpConstant, [3]),
+        Code.make(OpCode.OpConstant, [4]),
+        Code.make(OpCode.OpConstant, [5]),
+        Code.make(OpCode.OpHash, [6]),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [
+        new obj.Integer(1),
+        new obj.Integer(2),
+        new obj.Integer(3),
+        new obj.Integer(4),
+        new obj.Integer(5),
+        new obj.Integer(6),
+      ],
+
+      expression: '{1: 2, 3: 4, 5: 6}',
+    },
+
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpConstant, [2]),
+        Code.make(OpCode.OpAdd),
+        Code.make(OpCode.OpConstant, [3]),
+        Code.make(OpCode.OpConstant, [4]),
+        Code.make(OpCode.OpConstant, [5]),
+        Code.make(OpCode.OpMul),
+        Code.make(OpCode.OpHash, [4]),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [
+        new obj.Integer(1),
+        new obj.Integer(2),
+        new obj.Integer(3),
+        new obj.Integer(4),
+        new obj.Integer(5),
+        new obj.Integer(6),
+      ],
+
+      expression: '{1: 2 + 3, 4: 5 * 6}',
     },
   ];
 
