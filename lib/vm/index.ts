@@ -119,12 +119,51 @@ export default class VM {
 
           this.push(hash);
           break;
+        case OpCode.OpIndex:
+          {
+            const index = this.pop();
+            const left = this.pop();
+            this.executeIndexExpression(left, index);
+          }
+          break;
         case OpCode.OpPop:
           this.pop();
           break;
       }
     }
   }
+  executeIndexExpression(left: Object, index: Object) {
+    switch (true) {
+      case left.type() === ObjectType.ARRAY_OBJ &&
+        index.type() === ObjectType.INTEGER_OBJ:
+        this.executeArrayIndex(left, index);
+        break;
+      case left.type() === ObjectType.HASH_OBJ:
+        this.executeHashIndex(left, index);
+        break;
+      default:
+        throw new Error(`index operator not supported ${left.type()}`);
+    }
+  }
+  executeHashIndex(left: Object, index: Object) {
+    const hashObject = left as obj.Hash;
+
+    if (!HASHKEY.hashable(index))
+      throw new Error(`unusable as hash key: ${index.type()}`);
+
+    const pair = hashObject.pairs.get(HASHKEY.hash(index));
+
+    !pair ? this.push(NULL) : this.push(pair.value);
+  }
+
+  executeArrayIndex(left: Object, index: Object) {
+    const arrayObject = left as obj.Array;
+    const i = (index as obj.Integer).value;
+    const max = arrayObject.elements.length - 1;
+
+    i < 0 || i > max ? this.push(NULL) : this.push(arrayObject.elements[i]);
+  }
+
   buildHash(startIndex: number, endIndex: number): obj.Hash {
     const pairs = new Map();
 

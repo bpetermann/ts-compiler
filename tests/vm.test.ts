@@ -267,3 +267,27 @@ it('should apply hash literals', () => {
     expect(result).toEqual(true);
   });
 });
+
+it('should apply index expressions', () => {
+  const tests: [string, Object][] = [
+    ['[1, 2, 3][1]', new obj.Integer(2)],
+    ['[1, 2, 3][0 + 2]', new obj.Integer(3)],
+    ['[[1, 1, 1]][0][0]', new obj.Integer(1)],
+    ['[][0]', new obj.Null()],
+    ['[1, 2, 3][99]', new obj.Null()],
+    ['[1][-1]', new obj.Null()],
+    ['{1: 1, 2: 2}[1]', new obj.Integer(1)],
+    ['{1: 1, 2: 2}[2]', new obj.Integer(2)],
+    ['{1: 1}[0]', new obj.Null()],
+    ['{}[0]', new obj.Null()],
+  ];
+
+  tests.forEach((test) => {
+    const [actual, expected] = test;
+
+    const stackElement = getStackTop(actual);
+    const result = testExpectedObject(expected, stackElement);
+
+    expect(result).toEqual(true);
+  });
+});
