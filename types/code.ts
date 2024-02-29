@@ -19,6 +19,7 @@ export enum OpCode {
   OpSetGlobal,
   OpArray,
   OpHash,
+  OpIndex
 }
 
 export type Definition = { name: string; operandWidths: number[] };
