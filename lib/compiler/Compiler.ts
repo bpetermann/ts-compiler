@@ -180,6 +180,11 @@ export default class Compiler {
 
         this.emit(OpCode.OpHash, [hashNode.pairs.size * 2]);
         break;
+      case node instanceof ast.IndexExpression:
+        this.compileNode((node as ast.IndexExpression).left);
+        this.compileNode((node as ast.IndexExpression).index);
+        this.emit(OpCode.OpIndex);
+        break;
       default:
         return null;
     }
