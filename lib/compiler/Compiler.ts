@@ -4,8 +4,8 @@ import {
   OpCode,
   ByteCode,
   TokenType,
-  EmmitedInstruction,
   Expression,
+  CompilationScope,
 } from '../../types';
 import { SymbolTable } from './Symbol';
 import { Instruction } from '../code';
@@ -14,18 +14,22 @@ import { Code } from '../code';
 import * as ast from '../ast';
 
 export default class Compiler {
-  instructions: Instruction[];
   constants: Object[];
-  lastInstruction: EmmitedInstruction;
-  previousInstruction: EmmitedInstruction;
   symbolTable: SymbolTable;
+  scopes: CompilationScope[];
+  scopeIndex: number;
 
   constructor() {
-    this.instructions = [];
+    const mainScope: CompilationScope = {
+      instructions: [],
+      lastInstruction: { opCode: null, position: null },
+      previousInstruction: { opCode: null, position: null },
+    };
+
     this.constants = [];
-    this.lastInstruction = { opCode: null, position: null };
-    this.previousInstruction = { opCode: null, position: null };
     this.symbolTable = new SymbolTable();
+    this.scopes = [mainScope];
+    this.scopeIndex = 0;
   }
 
   newWithState(s: SymbolTable, constants: Object[]) {
@@ -203,51 +207,65 @@ export default class Compiler {
   }
 
   setLastInstruction(op: OpCode, position: number): void {
-    const previous = this.lastInstruction;
+    const previous = this.scopes[this.scopeIndex].lastInstruction;
     const last = { opCode: op, position };
 
-    this.previousInstruction = previous;
-    this.lastInstruction = last;
+    this.scopes[this.scopeIndex].previousInstruction = previous;
+    this.scopes[this.scopeIndex].lastInstruction = last;
   }
 
   lastInstructionIsPop(): boolean {
-    return this.lastInstruction.opCode === OpCode.OpPop;
+    return this.scopes[this.scopeIndex].lastInstruction.opCode === OpCode.OpPop;
   }
 
   instructionLength(): number {
-    return Instruction.concatAll(this.instructions).length();
+    return Instruction.concatAll(this.currentInstructions()).length();
   }
 
   removeLastPop() {
-    this.instructions = this.instructions.slice(
-      0,
-      this.lastInstruction.position
-    );
-    this.lastInstruction = this.previousInstruction;
+    const last = this.scopes[this.scopeIndex].lastInstruction;
+    const previous = this.scopes[this.scopeIndex].previousInstruction;
+
+    const oldIns = this.currentInstructions();
+    const newIns = oldIns.slice(0, last.position);
+
+    this.scopes[this.scopeIndex].instructions = newIns;
+    this.scopes[this.scopeIndex].lastInstruction = previous;
   }
 
   replaceInstruction(position: number, instruction: Instruction) {
-    const before = this.instructions.slice(0, position);
-    const after = this.instructions.slice(position + 1);
-    this.instructions = before.concat(instruction, after);
+    const before = this.currentInstructions().slice(0, position);
+    const after = this.currentInstructions().slice(position + 1);
+    this.scopes[this.scopeIndex].instructions = before.concat(
+      instruction,
+      after
+    );
   }
 
   changeOperand(position: number, operand: number): void {
-    const op = this.instructions[position].getUint8(0);
+    const op = this.currentInstructions()[position].getUint8(0);
     const newInstruction = Code.make(op, [operand]);
     this.replaceInstruction(position, newInstruction);
   }
 
   addInstruction(instruction: Instruction): number {
-    const posNewInstruction = this.instructions.length;
-    this.instructions.push(instruction);
+    const posNewInstruction = this.currentInstructions().length;
+
+    this.scopes[this.scopeIndex].instructions = [
+      ...this.currentInstructions(),
+      instruction,
+    ];
     return posNewInstruction;
   }
 
   byteCode(): ByteCode {
     return {
-      instruction: Instruction.concatAll(this.instructions),
+      instruction: Instruction.concatAll(this.currentInstructions()),
       constants: this.constants,
     };
+  }
+
+  currentInstructions(): Instruction[] {
+    return this.scopes[this.scopeIndex].instructions;
   }
 }

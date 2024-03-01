@@ -11,3 +11,9 @@ export type EmmitedInstruction = {
   opCode: OpCode;
   position: number;
 };
+
+export type CompilationScope = {
+  instructions: Instruction[];
+  lastInstruction: EmmitedInstruction;
+  previousInstruction: EmmitedInstruction;
+};

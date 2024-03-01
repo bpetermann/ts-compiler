@@ -4,6 +4,7 @@ import { Compiler } from '../lib/compiler';
 import { Instruction } from '../lib/code';
 import { Parser } from '../lib/parser';
 import { Program } from '../lib/ast';
+import * as obj from '../lib/object';
 import { Eval } from '../lib/eval';
 import colors from 'colors';
 
@@ -74,6 +75,16 @@ const testConstants = (expected: Object[], actual: Object[]) => {
         break;
       case ObjectType.STRING_OBJ:
         if (!testStringObject(expected[i], actual[i])) return false;
+        break;
+      case ObjectType.COMPILED_FUNCTION_OBJ:
+        const fn = actual[i] as obj.CompiledFunction;
+        if (
+          !testInstructions(
+            [(expected[i] as obj.CompiledFunction).instructions],
+            fn.instructions
+          )
+        )
+          return false;
         break;
     }
   }
