@@ -1,4 +1,5 @@
 import { Statement, ErrorType, Env, ObjectType, Object } from '../../types';
+import { Instruction } from 'lib/code';
 import { Identifier } from 'lib/ast';
 import colors from 'colors';
 
@@ -217,6 +218,22 @@ class Hash implements Object {
   }
 }
 
+class CompiledFunction implements Object {
+  instructions: Instruction;
+
+  constructor(instructions: Instruction) {
+    this.instructions = instructions;
+  }
+
+  type(): ObjectType {
+    return ObjectType.COMPILED_FUNCTION_OBJ;
+  }
+
+  inspect(): string {
+    return colors.magenta('compiled function');
+  }
+}
+
 export {
   ReturnValue,
   Integer,
@@ -230,4 +247,5 @@ export {
   Hash,
   HashKey,
   HashPair,
+  CompiledFunction,
 };

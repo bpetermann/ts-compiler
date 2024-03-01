@@ -14,6 +14,7 @@ export const enum ObjectType {
   BUILTIN_OBJ = 'BUILTIN',
   ARRAY_OBJ = 'ARRAY',
   HASH_OBJ = 'HASH',
+  COMPILED_FUNCTION_OBJ = 'COMPILED_FUNCTION_OBJ',
 }
 
 export interface Object {
