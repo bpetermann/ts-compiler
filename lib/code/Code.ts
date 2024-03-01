@@ -28,6 +28,9 @@ export default class Code {
     [OpCode.OpArray]: { name: 'OpArray', operandWidths: [2] },
     [OpCode.OpHash]: { name: 'OpHash', operandWidths: [2] },
     [OpCode.OpIndex]: { name: 'OpIndex', operandWidths: [] },
+    [OpCode.OpCall]: { name: 'OpCall', operandWidths: [] },
+    [OpCode.OpReturnValue]: { name: 'OpReturnValue', operandWidths: [] },
+    [OpCode.OpReturn]: { name: 'OpReturn', operandWidths: [] },
   };
 
   static lookUp(op: number): undefined | Definition {
