@@ -46,6 +46,13 @@ export default class Compiler {
     };
   }
 
+  emit(op: number, operands: number[] = []): number {
+    const instruction = Code.make(op, operands);
+    const position = this.addInstruction(instruction);
+    this.setLastInstruction(op, position);
+    return position;
+  }
+
   compile(program: ast.Program) {
     for (const statement of program.statements) {
       this.compileNode(statement);
@@ -206,13 +213,6 @@ export default class Compiler {
     return this.constants.length - 1;
   }
 
-  private emit(op: number, operands: number[] = []): number {
-    const instruction = Code.make(op, operands);
-    const position = this.addInstruction(instruction);
-    this.setLastInstruction(op, position);
-    return position;
-  }
-
   private setLastInstruction(op: OpCode, position: number): void {
     const previous = this.scopes[this.scopeIndex].lastInstruction;
     const last = { opCode: op, position };
@@ -269,7 +269,7 @@ export default class Compiler {
     return this.scopes[this.scopeIndex].instructions;
   }
 
-  private enterScope(): void {
+  enterScope(): void {
     const scope: CompilationScope = {
       instructions: [],
       lastInstruction: { opCode: null, position: null },
@@ -279,7 +279,7 @@ export default class Compiler {
     this.scopeIndex++;
   }
 
-  private leaveScope(): Instruction[] {
+  leaveScope(): Instruction[] {
     const instructions = this.currentInstructions();
     this.scopes = this.scopes.slice(0, this.scopes.length - 1);
     this.scopeIndex--;

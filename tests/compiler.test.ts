@@ -551,3 +551,63 @@ it('should compile index expressions', () => {
     );
   });
 });
+
+it('should handle different scopes', () => {
+  const throwError = (text: string) => {
+    throw new Error(text);
+  };
+
+  const compiler = new Compiler();
+
+  if (compiler.scopeIndex !== 0)
+    throwError(`scopeIndex wrong. got=${compiler.scopeIndex}, want=0`);
+
+  compiler.emit(OpCode.OpMul);
+
+  compiler.enterScope();
+  if (compiler.scopeIndex !== 1)
+    throwError(`scopeIndex wrong. got=${compiler.scopeIndex}, want=1`);
+
+  compiler.emit(OpCode.OpSub);
+
+  if (compiler.scopes[compiler.scopeIndex].instructions.length !== 1)
+    throwError(
+      `instructions length wrong. got=${
+        compiler.scopes[compiler.scopeIndex].instructions.length
+      }`
+    );
+
+  let last = compiler.scopes[compiler.scopeIndex].lastInstruction;
+  if (last.opCode !== OpCode.OpSub)
+    throwError(
+      `lastInstruction.Opcode wrong. got=${last.opCode}, want=${OpCode.OpSub}}`
+    );
+
+  compiler.leaveScope();
+
+  if (compiler.scopeIndex !== 0)
+    throwError(`scopeIndex wrong. got=${compiler.scopeIndex}, want=0`);
+
+  compiler.emit(OpCode.OpAdd);
+
+  if (compiler.scopes[compiler.scopeIndex].instructions.length !== 2)
+    throwError(
+      `instructions length wrong. got=${
+        compiler.scopes[compiler.scopeIndex].instructions.length
+      }`
+    );
+
+  last = compiler.scopes[compiler.scopeIndex].lastInstruction;
+
+  if (last.opCode !== OpCode.OpAdd)
+    throwError(
+      `lastInstruction.Opcode wrong. got=${last.opCode}, want=${OpCode.OpSub}}`
+    );
+
+  const previous = compiler.scopes[compiler.scopeIndex].previousInstruction;
+
+  if (previous.opCode !== OpCode.OpMul)
+    throwError(
+      `previousInstruction.Opcode wrong. got=${previous.opCode}, want=OpMul}`
+    );
+});
