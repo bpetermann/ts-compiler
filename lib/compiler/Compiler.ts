@@ -39,13 +39,20 @@ export default class Compiler {
     return compiler;
   }
 
+  byteCode(): ByteCode {
+    return {
+      instruction: Instruction.concatAll(this.currentInstructions()),
+      constants: this.constants,
+    };
+  }
+
   compile(program: ast.Program) {
     for (const statement of program.statements) {
       this.compileNode(statement);
     }
   }
 
-  compileNode(node: NodeType) {
+  private compileNode(node: NodeType) {
     switch (true) {
       case node instanceof ast.ExpressionStatement:
         this.compileNode((node as ast.ExpressionStatement).expression);
@@ -194,19 +201,19 @@ export default class Compiler {
     }
   }
 
-  addConstant(obj: Object): number {
+  private addConstant(obj: Object): number {
     this.constants.push(obj);
     return this.constants.length - 1;
   }
 
-  emit(op: number, operands: number[] = []): number {
+  private emit(op: number, operands: number[] = []): number {
     const instruction = Code.make(op, operands);
     const position = this.addInstruction(instruction);
     this.setLastInstruction(op, position);
     return position;
   }
 
-  setLastInstruction(op: OpCode, position: number): void {
+  private setLastInstruction(op: OpCode, position: number): void {
     const previous = this.scopes[this.scopeIndex].lastInstruction;
     const last = { opCode: op, position };
 
@@ -214,15 +221,15 @@ export default class Compiler {
     this.scopes[this.scopeIndex].lastInstruction = last;
   }
 
-  lastInstructionIsPop(): boolean {
+  private lastInstructionIsPop(): boolean {
     return this.scopes[this.scopeIndex].lastInstruction.opCode === OpCode.OpPop;
   }
 
-  instructionLength(): number {
+  private instructionLength(): number {
     return Instruction.concatAll(this.currentInstructions()).length();
   }
 
-  removeLastPop() {
+  private removeLastPop() {
     const last = this.scopes[this.scopeIndex].lastInstruction;
     const previous = this.scopes[this.scopeIndex].previousInstruction;
 
@@ -233,7 +240,7 @@ export default class Compiler {
     this.scopes[this.scopeIndex].lastInstruction = previous;
   }
 
-  replaceInstruction(position: number, instruction: Instruction) {
+  private replaceInstruction(position: number, instruction: Instruction) {
     const before = this.currentInstructions().slice(0, position);
     const after = this.currentInstructions().slice(position + 1);
     this.scopes[this.scopeIndex].instructions = before.concat(
@@ -242,13 +249,13 @@ export default class Compiler {
     );
   }
 
-  changeOperand(position: number, operand: number): void {
+  private changeOperand(position: number, operand: number): void {
     const op = this.currentInstructions()[position].getUint8(0);
     const newInstruction = Code.make(op, [operand]);
     this.replaceInstruction(position, newInstruction);
   }
 
-  addInstruction(instruction: Instruction): number {
+  private addInstruction(instruction: Instruction): number {
     const posNewInstruction = this.currentInstructions().length;
 
     this.scopes[this.scopeIndex].instructions = [
@@ -258,14 +265,25 @@ export default class Compiler {
     return posNewInstruction;
   }
 
-  byteCode(): ByteCode {
-    return {
-      instruction: Instruction.concatAll(this.currentInstructions()),
-      constants: this.constants,
-    };
+  private currentInstructions(): Instruction[] {
+    return this.scopes[this.scopeIndex].instructions;
   }
 
-  currentInstructions(): Instruction[] {
-    return this.scopes[this.scopeIndex].instructions;
+  private enterScope(): void {
+    const scope: CompilationScope = {
+      instructions: [],
+      lastInstruction: { opCode: null, position: null },
+      previousInstruction: { opCode: null, position: null },
+    };
+    this.scopes.push(scope);
+    this.scopeIndex++;
+  }
+
+  private leaveScope(): Instruction[] {
+    const instructions = this.currentInstructions();
+    this.scopes = this.scopes.slice(0, this.scopes.length - 1);
+    this.scopeIndex--;
+
+    return instructions;
   }
 }
