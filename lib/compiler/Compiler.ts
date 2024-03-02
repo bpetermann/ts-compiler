@@ -203,6 +203,21 @@ export default class Compiler {
         this.compileNode((node as ast.IndexExpression).index);
         this.emit(OpCode.OpIndex);
         break;
+      case node instanceof ast.FunctionLiteral:
+        const FnNode = node as ast.FunctionLiteral;
+        this.enterScope();
+
+        this.compileNode(FnNode.body);
+
+        const instructions = this.leaveScope();
+
+        const compiledFn = new obj.CompiledFunction(instructions);
+        this.emit(OpCode.OpConstant, [this.addConstant(compiledFn)]);
+        break;
+      case node instanceof ast.ReturnStatement:
+        this.compileNode((node as ast.ReturnStatement).returnValue);
+        this.emit(OpCode.OpReturnValue);
+        break;
       default:
         return null;
     }

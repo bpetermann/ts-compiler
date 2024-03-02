@@ -219,9 +219,9 @@ class Hash implements Object {
 }
 
 class CompiledFunction implements Object {
-  instructions: Instruction;
+  instructions: Instruction[];
 
-  constructor(instructions: Instruction) {
+  constructor(instructions: Instruction[]) {
     this.instructions = instructions;
   }
 

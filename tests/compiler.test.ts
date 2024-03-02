@@ -611,3 +611,35 @@ it('should handle different scopes', () => {
       `previousInstruction.Opcode wrong. got=${previous.opCode}, want=OpMul}`
     );
 });
+
+it('should compile functions', () => {
+  const expected: {
+    instruction: Instruction[];
+    constants: Object[];
+    input: string;
+  }[] = [
+    {
+      instruction: [Code.make(OpCode.OpConstant, [2]), Code.make(OpCode.OpPop)],
+      constants: [
+        new obj.Integer(5),
+        new obj.Integer(10),
+        new obj.CompiledFunction([
+          Code.make(OpCode.OpConstant, [0]),
+          Code.make(OpCode.OpConstant, [1]),
+          Code.make(OpCode.OpAdd),
+          Code.make(OpCode.OpReturnValue),
+        ]),
+      ],
+      input: `fn() { return 5 + 10 }`,
+    },
+  ];
+
+  expected.forEach(({ instruction, constants, input }) => {
+    const actual = compileExpression(input);
+
+    expect(helper.testConstants(constants, actual.constants)).toEqual(true);
+    expect(helper.testInstructions(instruction, actual.instruction)).toEqual(
+      true
+    );
+  });
+});
