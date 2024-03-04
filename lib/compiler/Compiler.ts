@@ -73,7 +73,7 @@ export default class Compiler {
         // Emit an `OpJumpNotTruthy` with a bogus value
         const jumpNotTruthyPos = this.emit(OpCode.OpJumpNotTruthy, [9999]);
         this.compileNode(consequence);
-        if (this.lastInstructionIsPop()) this.removeLastPop();
+        if (this.lastInstructionIs(OpCode.OpPop)) this.removeLastPop();
 
         // Emit an `OpJump` with a bogus value
         const jumpPos = this.emit(OpCode.OpJump, [9999]);
@@ -87,7 +87,7 @@ export default class Compiler {
           this.compileNode(alternative);
         }
 
-        if (this.lastInstructionIsPop()) this.removeLastPop();
+        if (this.lastInstructionIs(OpCode.OpPop)) this.removeLastPop();
         const afterAlternativePos = this.instructionLength();
         this.changeOperand(jumpPos, afterAlternativePos);
         break;
@@ -209,6 +209,9 @@ export default class Compiler {
 
         this.compileNode(FnNode.body);
 
+        if (this.lastInstructionIs(OpCode.OpPop))
+          this.replaceLastPopWithReturn();
+
         const instructions = this.leaveScope();
 
         const compiledFn = new obj.CompiledFunction(instructions);
@@ -221,6 +224,12 @@ export default class Compiler {
       default:
         return null;
     }
+  }
+
+  private replaceLastPopWithReturn() {
+    const lastPos = this.scopes[this.scopeIndex].lastInstruction.position;
+    this.replaceInstruction(lastPos, Code.make(OpCode.OpReturnValue));
+    this.scopes[this.scopeIndex].lastInstruction.opCode = OpCode.OpReturnValue;
   }
 
   private addConstant(obj: Object): number {
@@ -236,8 +245,11 @@ export default class Compiler {
     this.scopes[this.scopeIndex].lastInstruction = last;
   }
 
-  private lastInstructionIsPop(): boolean {
-    return this.scopes[this.scopeIndex].lastInstruction.opCode === OpCode.OpPop;
+  private lastInstructionIs(op: OpCode): boolean {
+    return (
+      this.currentInstructions().length !== 0 &&
+      this.scopes[this.scopeIndex].lastInstruction.opCode === op
+    );
   }
 
   private instructionLength(): number {
