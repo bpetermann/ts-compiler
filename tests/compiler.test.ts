@@ -707,3 +707,26 @@ it('should compile implicit return functions', () => {
     );
   });
 });
+
+it('should compile empty function bodys', () => {
+  const expected: {
+    instruction: Instruction[];
+    constants: Object[];
+    input: string;
+  }[] = [
+    {
+      instruction: [Code.make(OpCode.OpConstant, [0]), Code.make(OpCode.OpPop)],
+      constants: [new obj.CompiledFunction([Code.make(OpCode.OpReturn)])],
+      input: `fn() { }`,
+    },
+  ];
+
+  expected.forEach(({ instruction, constants, input }) => {
+    const actual = compileExpression(input);
+
+    expect(helper.testConstants(constants, actual.constants)).toEqual(true);
+    expect(helper.testInstructions(instruction, actual.instruction)).toEqual(
+      true
+    );
+  });
+});

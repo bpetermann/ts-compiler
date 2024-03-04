@@ -212,6 +212,9 @@ export default class Compiler {
         if (this.lastInstructionIs(OpCode.OpPop))
           this.replaceLastPopWithReturn();
 
+        if (!this.lastInstructionIs(OpCode.OpReturnValue))
+          this.emit(OpCode.OpReturn);
+
         const instructions = this.leaveScope();
 
         const compiledFn = new obj.CompiledFunction(instructions);
