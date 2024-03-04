@@ -2,7 +2,7 @@ import { Object, ObjectType } from '../types';
 import { expect } from '@jest/globals';
 import * as obj from '../lib/object';
 import * as helper from './helper';
-import VM from '../lib/vm';
+import { VM } from '../lib/vm';
 
 const getStackTop = (expression: string) => {
   const bytecode = helper.compileExpression(expression);

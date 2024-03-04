@@ -1,11 +1,10 @@
 import { TokenType, Object, ByteCode } from '../../types';
 import { Compiler, SymbolTable } from '../compiler';
-import { Instruction } from '../code';
 import { Parser } from '../parser';
 import readline from 'readline';
 import * as ast from '../ast';
 import colors from 'colors';
-import VM from '../vm';
+import { VM } from '../vm';
 
 export default class Repl {
   rl: readline.Interface;
