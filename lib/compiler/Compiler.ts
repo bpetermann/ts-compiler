@@ -220,6 +220,10 @@ export default class Compiler {
         const compiledFn = new obj.CompiledFunction(instructions);
         this.emit(OpCode.OpConstant, [this.addConstant(compiledFn)]);
         break;
+      case node instanceof ast.CallExpression:
+        this.compileNode((node as ast.CallExpression).function);
+        this.emit(OpCode.OpCall);
+        break;
       case node instanceof ast.ReturnStatement:
         this.compileNode((node as ast.ReturnStatement).returnValue);
         this.emit(OpCode.OpReturnValue);

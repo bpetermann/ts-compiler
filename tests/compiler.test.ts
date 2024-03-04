@@ -730,3 +730,53 @@ it('should compile empty function bodys', () => {
     );
   });
 });
+
+it('should compile function calls', () => {
+  const expected: {
+    instruction: Instruction[];
+    constants: Object[];
+    input: string;
+  }[] = [
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpCall),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [
+        new obj.Integer(24),
+        new obj.CompiledFunction([
+          Code.make(OpCode.OpConstant, [0]),
+          Code.make(OpCode.OpReturnValue),
+        ]),
+      ],
+      input: `fn() { 24 }();`,
+    },
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpSetGlobal, [0]),
+        Code.make(OpCode.OpGetGlobal, [0]),
+        Code.make(OpCode.OpCall),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [
+        new obj.Integer(24),
+        new obj.CompiledFunction([
+          Code.make(OpCode.OpConstant, [0]),
+          Code.make(OpCode.OpReturnValue),
+        ]),
+      ],
+      input: 'let noArg = fn() { 24 }; noArg();',
+    },
+  ];
+
+  expected.forEach(({ instruction, constants, input }) => {
+    const actual = compileExpression(input);
+
+    expect(helper.testConstants(constants, actual.constants)).toEqual(true);
+    expect(helper.testInstructions(instruction, actual.instruction)).toEqual(
+      true
+    );
+  });
+});
