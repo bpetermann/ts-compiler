@@ -215,9 +215,9 @@ export default class Compiler {
         if (!this.lastInstructionIs(OpCode.OpReturnValue))
           this.emit(OpCode.OpReturn);
 
-        const instructions = this.leaveScope();
+        const instruction = this.leaveScope();
 
-        const compiledFn = new obj.CompiledFunction(instructions);
+        const compiledFn = new obj.CompiledFunction(instruction);
         this.emit(OpCode.OpConstant, [this.addConstant(compiledFn)]);
         break;
       case node instanceof ast.CallExpression:
@@ -313,8 +313,8 @@ export default class Compiler {
     this.scopeIndex++;
   }
 
-  leaveScope(): Instruction[] {
-    const instructions = this.currentInstructions();
+  leaveScope(): Instruction {
+    const instructions = Instruction.concatAll(this.currentInstructions())
     this.scopes = this.scopes.slice(0, this.scopes.length - 1);
     this.scopeIndex--;
 

@@ -80,8 +80,8 @@ const testConstants = (expected: Object[], actual: Object[]) => {
         const fn = actual[i] as obj.CompiledFunction;
         if (
           !testInstructions(
-            (expected[i] as obj.CompiledFunction).instructions,
-            Instruction.concatAll(fn.instructions)
+            [(expected[i] as obj.CompiledFunction).instruction],
+            fn.instruction
           )
         )
           return false;

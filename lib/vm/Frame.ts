@@ -11,6 +11,6 @@ export default class Frame {
   }
 
   get instruction(): Instruction {
-    return this.fn.instructions[0];
+    return this.fn.instruction;
   }
 }

@@ -35,7 +35,7 @@ export default class VM {
     this.stackPointer = 0;
     this.globals = new Array(GLOBALS_SIZE);
     this.frames = new Array(MAX_FRAMES);
-    this.frames[0] = new Frame(new obj.CompiledFunction([instruction]));
+    this.frames[0] = new Frame(new obj.CompiledFunction(instruction));
     this.framesIndex = 1;
   }
 

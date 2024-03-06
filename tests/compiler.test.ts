@@ -623,12 +623,14 @@ it('should compile functions', () => {
       constants: [
         new obj.Integer(5),
         new obj.Integer(10),
-        new obj.CompiledFunction([
-          Code.make(OpCode.OpConstant, [0]),
-          Code.make(OpCode.OpConstant, [1]),
-          Code.make(OpCode.OpAdd),
-          Code.make(OpCode.OpReturnValue),
-        ]),
+        new obj.CompiledFunction(
+          Instruction.concatAll([
+            Code.make(OpCode.OpConstant, [0]),
+            Code.make(OpCode.OpConstant, [1]),
+            Code.make(OpCode.OpAdd),
+            Code.make(OpCode.OpReturnValue),
+          ])
+        ),
       ],
       input: `fn() { return 5 + 10 }`,
     },
@@ -655,12 +657,14 @@ it('should compile implicit return functions', () => {
       constants: [
         new obj.Integer(5),
         new obj.Integer(10),
-        new obj.CompiledFunction([
-          Code.make(OpCode.OpConstant, [0]),
-          Code.make(OpCode.OpConstant, [1]),
-          Code.make(OpCode.OpAdd),
-          Code.make(OpCode.OpReturnValue),
-        ]),
+        new obj.CompiledFunction(
+          Instruction.concatAll([
+            Code.make(OpCode.OpConstant, [0]),
+            Code.make(OpCode.OpConstant, [1]),
+            Code.make(OpCode.OpAdd),
+            Code.make(OpCode.OpReturnValue),
+          ])
+        ),
       ],
       input: `fn() { 5 + 10 }`,
     },
@@ -687,12 +691,14 @@ it('should compile implicit return functions', () => {
       constants: [
         new obj.Integer(1),
         new obj.Integer(2),
-        new obj.CompiledFunction([
-          Code.make(OpCode.OpConstant, [0]),
-          Code.make(OpCode.OpPop),
-          Code.make(OpCode.OpConstant, [1]),
-          Code.make(OpCode.OpReturnValue),
-        ]),
+        new obj.CompiledFunction(
+          Instruction.concatAll([
+            Code.make(OpCode.OpConstant, [0]),
+            Code.make(OpCode.OpPop),
+            Code.make(OpCode.OpConstant, [1]),
+            Code.make(OpCode.OpReturnValue),
+          ])
+        ),
       ],
       input: `fn() { 1; 2 }`,
     },
@@ -716,7 +722,7 @@ it('should compile empty function bodys', () => {
   }[] = [
     {
       instruction: [Code.make(OpCode.OpConstant, [0]), Code.make(OpCode.OpPop)],
-      constants: [new obj.CompiledFunction([Code.make(OpCode.OpReturn)])],
+      constants: [new obj.CompiledFunction(Code.make(OpCode.OpReturn))],
       input: `fn() { }`,
     },
   ];
@@ -745,10 +751,12 @@ it('should compile function calls', () => {
       ],
       constants: [
         new obj.Integer(24),
-        new obj.CompiledFunction([
-          Code.make(OpCode.OpConstant, [0]),
-          Code.make(OpCode.OpReturnValue),
-        ]),
+        new obj.CompiledFunction(
+          Instruction.concatAll([
+            Code.make(OpCode.OpConstant, [0]),
+            Code.make(OpCode.OpReturnValue),
+          ])
+        ),
       ],
       input: `fn() { 24 }();`,
     },
@@ -762,10 +770,12 @@ it('should compile function calls', () => {
       ],
       constants: [
         new obj.Integer(24),
-        new obj.CompiledFunction([
-          Code.make(OpCode.OpConstant, [0]),
-          Code.make(OpCode.OpReturnValue),
-        ]),
+        new obj.CompiledFunction(
+          Instruction.concatAll([
+            Code.make(OpCode.OpConstant, [0]),
+            Code.make(OpCode.OpReturnValue),
+          ])
+        ),
       ],
       input: 'let noArg = fn() { 24 }; noArg();',
     },
