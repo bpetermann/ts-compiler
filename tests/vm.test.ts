@@ -333,3 +333,21 @@ it('should handle function calls wihtout return values', () => {
     expect(result).toEqual(true);
   });
 });
+
+it('should handle first class functions', () => {
+  const tests: [string, Object][] = [
+    [
+      'let returnsOne = fn() { 1; };let returnsOneReturner = fn() { returnsOne; };returnsOneReturner()();',
+      new obj.Integer(1),
+    ],
+  ];
+
+  tests.forEach((test) => {
+    const [actual, expected] = test;
+
+    const stackElement = getStackTop(actual);
+    const result = testExpectedObject(expected, stackElement);
+
+    expect(result).toEqual(true);
+  });
+});
