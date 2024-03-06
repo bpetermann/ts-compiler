@@ -291,3 +291,26 @@ it('should apply index expressions', () => {
     expect(result).toEqual(true);
   });
 });
+
+it('should apply function calls wihtout args', () => {
+  const tests: [string, Object][] = [
+    ['let fivePlusTen = fn() { 5 + 10; };fivePlusTen();', new obj.Integer(15)],
+    [
+      'let one = fn() { 1; };let two = fn() { 2; };one() + two()',
+      new obj.Integer(3),
+    ],
+    [
+      'let a = fn() { 1 };let b = fn() { a() + 1 };let c = fn() { b() + 1 };c();',
+      new obj.Integer(3),
+    ],
+  ];
+
+  tests.forEach((test) => {
+    const [actual, expected] = test;
+
+    const stackElement = getStackTop(actual);
+    const result = testExpectedObject(expected, stackElement);
+
+    expect(result).toEqual(true);
+  });
+});
