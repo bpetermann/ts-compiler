@@ -51,7 +51,7 @@ const testExpectedObject = (expected: Object, actual: Object): boolean => {
   }
 };
 
-it('should apply int arithmetic', () => {
+it('should handle int arithmetic', () => {
   const tests: [string, number][] = [
     ['1', 1],
     ['2', 2],
@@ -66,7 +66,7 @@ it('should apply int arithmetic', () => {
   });
 });
 
-it('should apply advanced int arithmetic', () => {
+it('should handle advanced int arithmetic', () => {
   const tests: [string, number][] = [
     ['1 - 2', -1],
     ['1 * 2', 2],
@@ -93,7 +93,7 @@ it('should apply advanced int arithmetic', () => {
   });
 });
 
-it('should apply boolean expressions', () => {
+it('should handle boolean expressions', () => {
   const tests: [string, boolean][] = [
     ['true', true],
     ['false', false],
@@ -133,7 +133,7 @@ it('should apply boolean expressions', () => {
   });
 });
 
-it('should apply if expressions', () => {
+it('should handle if expressions', () => {
   const tests: [string, number][] = [
     ['if (true) { 10 }', 10],
     ['if (true) { 10 } else { 20 }', 10],
@@ -154,7 +154,7 @@ it('should apply if expressions', () => {
   });
 });
 
-it('should apply if expressions without else', () => {
+it('should handle if expressions without else', () => {
   const tests: [string, Object][] = [
     ['if (1 > 2) { 10 }', new obj.Null()],
     ['if (false) { 10 }', new obj.Null()],
@@ -170,7 +170,7 @@ it('should apply if expressions without else', () => {
   });
 });
 
-it('should apply global let statements', () => {
+it('should handle global let statements', () => {
   const tests: [string, number][] = [
     ['let one = 1; one', 1],
     ['let one = 1; let two = 2; one + two', 3],
@@ -187,7 +187,7 @@ it('should apply global let statements', () => {
   });
 });
 
-it('should apply string expressions', () => {
+it('should handle string expressions', () => {
   const tests: [string, string][] = [
     ['"monkey"', 'monkey'],
     [`"mon" + "key"`, 'monkey'],
@@ -204,7 +204,7 @@ it('should apply string expressions', () => {
   });
 });
 
-it('should apply array literals', () => {
+it('should handle array literals', () => {
   const tests: [string, number[]][] = [
     ['[]', []],
     ['[1, 2, 3]', [1, 2, 3]],
@@ -223,7 +223,7 @@ it('should apply array literals', () => {
   });
 });
 
-it('should apply hash literals', () => {
+it('should handle hash literals', () => {
   const HASHKEY = new obj.HashKey();
 
   const tests: [string, any][] = [
@@ -268,7 +268,7 @@ it('should apply hash literals', () => {
   });
 });
 
-it('should apply index expressions', () => {
+it('should handle index expressions', () => {
   const tests: [string, Object][] = [
     ['[1, 2, 3][1]', new obj.Integer(2)],
     ['[1, 2, 3][0 + 2]', new obj.Integer(3)],
@@ -292,7 +292,7 @@ it('should apply index expressions', () => {
   });
 });
 
-it('should apply function calls wihtout args', () => {
+it('should handle function calls wihtout args', () => {
   const tests: [string, Object][] = [
     ['let fivePlusTen = fn() { 5 + 10; };fivePlusTen();', new obj.Integer(15)],
     [
@@ -302,6 +302,25 @@ it('should apply function calls wihtout args', () => {
     [
       'let a = fn() { 1 };let b = fn() { a() + 1 };let c = fn() { b() + 1 };c();',
       new obj.Integer(3),
+    ],
+  ];
+
+  tests.forEach((test) => {
+    const [actual, expected] = test;
+
+    const stackElement = getStackTop(actual);
+    const result = testExpectedObject(expected, stackElement);
+
+    expect(result).toEqual(true);
+  });
+});
+
+it('should handle function calls wihtout return values', () => {
+  const tests: [string, Object][] = [
+    [' let noReturn = fn() { };noReturn();', new obj.Null()],
+    [
+      'let noReturn = fn() { };let noReturnTwo = fn() { noReturn(); };noReturn();noReturnTwo();',
+      new obj.Null(),
     ],
   ];
 

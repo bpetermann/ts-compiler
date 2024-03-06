@@ -161,6 +161,11 @@ export default class VM {
 
           this.push(returnValue);
           break;
+        case OpCode.OpReturn:
+          this.popFrame();
+          this.pop();
+          this.push(NULL);
+          break;
         case OpCode.OpPop:
           this.pop();
           break;
