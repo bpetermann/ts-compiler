@@ -70,3 +70,13 @@ it('should make a instruction of op add', () => {
 
   expect(operandsRead).toEqual(operands);
 });
+
+it('should make a instruction of one byte operands', () => {
+  const operands = [255];
+  const ins = Code.make(OpCode.OpGetLocal, operands);
+
+  const dataView = new Uint8Array(ins.getArrayBuffer());
+
+  const expected = [OpCode.OpGetLocal, 255];
+  expect([...dataView]).toEqual(expected);
+});

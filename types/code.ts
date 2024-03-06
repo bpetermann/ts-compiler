@@ -23,6 +23,8 @@ export enum OpCode {
   OpCall,
   OpReturnValue,
   OpReturn,
+  OpGetLocal,
+  OpSetLocal
 }
 
 export type Definition = { name: string; operandWidths: number[] };

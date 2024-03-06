@@ -31,6 +31,8 @@ export default class Code {
     [OpCode.OpCall]: { name: 'OpCall', operandWidths: [] },
     [OpCode.OpReturnValue]: { name: 'OpReturnValue', operandWidths: [] },
     [OpCode.OpReturn]: { name: 'OpReturn', operandWidths: [] },
+    [OpCode.OpGetLocal]: { name: 'OpGetLocal', operandWidths: [1] },
+    [OpCode.OpSetLocal]: { name: 'OpSetLocal', operandWidths: [1] },
   };
 
   static lookUp(op: number): undefined | Definition {
@@ -59,6 +61,8 @@ export default class Code {
         case 2:
           instruction.setUint16(offset, operands[i]);
           break;
+        case 1:
+          instruction.setUint8(offset, operands[i]);
       }
 
       offset += width;
