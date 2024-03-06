@@ -84,6 +84,10 @@ export default class Code {
       switch (width) {
         case 2:
           operands[i] = ins.getUint16(offset);
+          break;
+        case 1:
+          operands[i] = ins.getUint8(offset);
+          break;
       }
 
       offset += width;

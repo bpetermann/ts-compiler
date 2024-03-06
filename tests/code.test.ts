@@ -80,3 +80,48 @@ it('should make a instruction of one byte operands', () => {
   const expected = [OpCode.OpGetLocal, 255];
   expect([...dataView]).toEqual(expected);
 });
+
+it('should decode ony byte operands', () => {
+  const instruction = [
+    Code.make(OpCode.OpAdd, []),
+    Code.make(OpCode.OpGetLocal, [1]),
+    Code.make(OpCode.OpConstant, [2]),
+    Code.make(OpCode.OpConstant, [65535]),
+  ];
+
+  const expected = `
+  0 OpAdd
+  1 OpGetLocal 1
+  3 OpConstant 2 
+  6 OpConstant 65535
+  `;
+
+  const concatted = concatInstructions(instruction);
+
+  expect(expect.stringMatching(cleanString(concatted.string()))).toEqual(
+    expected
+  );
+});
+
+it('should decode ony byte operands', () => {
+  const operands = [255];
+  const bytesRead = 1;
+
+  const def = Code.lookUp(OpCode.OpGetLocal);
+  const ins = Code.make(OpCode.OpGetLocal, operands);
+
+  if (!def) {
+    throw new Error('OpCode not found');
+  }
+
+  const { operands: operandsRead, offset } = Code.readOperands(
+    def,
+    ins.slice(1)
+  );
+
+  expect(offset).toEqual(bytesRead);
+
+  for (let i = 0; i < operands.length; i++) {
+    expect(operandsRead[i]).toEqual(operands[i]);
+  }
+});
