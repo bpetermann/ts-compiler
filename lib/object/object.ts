@@ -230,7 +230,7 @@ class CompiledFunction implements Object {
   }
 
   inspect(): string {
-    return colors.magenta('compiled function');
+    return colors.gray(`null`);
   }
 }
 

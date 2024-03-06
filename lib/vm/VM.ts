@@ -145,6 +145,22 @@ export default class VM {
             this.executeIndexExpression(left, index);
           }
           break;
+
+        case OpCode.OpCall:
+          const fn = this.stack[this.stackPointer - 1];
+          if (!(fn instanceof obj.CompiledFunction))
+            throw new Error('calling non-function');
+          const frame = new Frame(fn);
+          this.pushFrame(frame);
+          break;
+        case OpCode.OpReturnValue:
+          const returnValue = this.pop();
+
+          this.popFrame();
+          this.pop();
+
+          this.push(returnValue);
+          break;
         case OpCode.OpPop:
           this.pop();
           break;
