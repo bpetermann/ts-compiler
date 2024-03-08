@@ -11,7 +11,7 @@ class SymbolTable {
   constructor() {
     this._store = {};
     this.numDefinitions = 0;
-     this.outer = null;
+    this.outer = null;
   }
 
   get store() {
@@ -43,9 +43,11 @@ class EnclosedSymbolTable extends SymbolTable {
   }
 
   define(name: string): Symbol {
-    let scope: SymbolScope =
-      this.outer === null ? SymbolScope.GlobalScope : SymbolScope.LocalScope;
-    const symbol = new Symbol(name, scope, this.numDefinitions);
+    const symbol = new Symbol(
+      name,
+      SymbolScope.LocalScope,
+      this.numDefinitions
+    );
     this.numDefinitions++;
     this._store[name] = symbol;
     return symbol;

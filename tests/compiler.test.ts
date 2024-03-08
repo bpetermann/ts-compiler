@@ -577,8 +577,8 @@ it('should handle different scopes', () => {
   if (compiler.symbolTable !== globalSymbolTable)
     throwError(`compiler did not restore global symbol table`);
 
-    if (compiler.symbolTable.outer !== null)
-    throwError(`compiler modified global symbol table incorrectly`); 
+  if (compiler.symbolTable.outer !== null)
+    throwError(`compiler modified global symbol table incorrectly`);
 
   compiler.emit(OpCode.OpAdd);
 
@@ -808,15 +808,12 @@ it('should compile let statement scopes', () => {
       input: `let num = 55; fn() { num }`,
     },
     {
-      instruction: [
-        Code.make(OpCode.OpConstant, [1]),
-        Code.make(OpCode.OpReturnValue),
-      ],
+      instruction: [Code.make(OpCode.OpConstant, [1]), Code.make(OpCode.OpPop)],
       constants: [
         new obj.Integer(55),
         new obj.CompiledFunction(
           Instruction.concatAll([
-            Code.make(OpCode.OpConstant, [1]),
+            Code.make(OpCode.OpConstant, [0]),
             Code.make(OpCode.OpSetLocal, [0]),
             Code.make(OpCode.OpGetLocal, [0]),
             Code.make(OpCode.OpReturnValue),

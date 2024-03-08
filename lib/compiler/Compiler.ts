@@ -7,7 +7,7 @@ import {
   Expression,
   CompilationScope,
 } from '../../types';
-import { SymbolTable, EnclosedSymbolTable } from './Symbol';
+import { SymbolTable, EnclosedSymbolTable, SymbolScope } from './Symbol';
 import { Instruction } from '../code';
 import * as obj from '../object';
 import { Code } from '../code';
@@ -155,17 +155,26 @@ export default class Compiler {
         const symbol = this.symbolTable.define(
           (node as ast.LetStatement).name.value
         );
-        this.emit(OpCode.OpSetGlobal, [symbol.index]);
+        if (symbol.scope === SymbolScope.GlobalScope) {
+          this.emit(OpCode.OpSetGlobal, [symbol.index]);
+        } else {
+          this.emit(OpCode.OpSetLocal, [symbol.index]);
+        }
         break;
       case node instanceof ast.Identifier:
-        const { index } = this.symbolTable.resolve(
+        const { scope, index } = this.symbolTable.resolve(
           (node as ast.Identifier).value
         );
         if (index < 0)
           throw new Error(
             `undefined variable ${(node as ast.Identifier).value}`
           );
-        this.emit(OpCode.OpGetGlobal, [index]);
+          
+        if (scope === SymbolScope.GlobalScope) {
+          this.emit(OpCode.OpGetGlobal, [index]);
+        } else {
+          this.emit(OpCode.OpGetLocal, [index]);
+        }
         break;
       case node instanceof ast.IntegerLiteral:
         const { value } = node as ast.IntegerLiteral;
