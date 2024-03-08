@@ -6,10 +6,12 @@ enum SymbolScope {
 class SymbolTable {
   _store: { [k: string]: Symbol };
   numDefinitions: number;
+  outer: SymbolTable;
 
   constructor() {
     this._store = {};
     this.numDefinitions = 0;
+     this.outer = null;
   }
 
   get store() {
@@ -33,9 +35,9 @@ class SymbolTable {
 }
 
 class EnclosedSymbolTable extends SymbolTable {
-  outer?: SymbolTable;
+  outer: SymbolTable;
 
-  constructor(outer?: SymbolTable) {
+  constructor(outer: SymbolTable) {
     super();
     this.outer = outer;
   }

@@ -7,7 +7,7 @@ import {
   Expression,
   CompilationScope,
 } from '../../types';
-import { SymbolTable } from './Symbol';
+import { SymbolTable, EnclosedSymbolTable } from './Symbol';
 import { Instruction } from '../code';
 import * as obj from '../object';
 import { Code } from '../code';
@@ -15,7 +15,7 @@ import * as ast from '../ast';
 
 export default class Compiler {
   constants: Object[];
-  symbolTable: SymbolTable;
+  symbolTable: SymbolTable | EnclosedSymbolTable;
   scopes: CompilationScope[];
   scopeIndex: number;
 
@@ -311,12 +311,14 @@ export default class Compiler {
     };
     this.scopes.push(scope);
     this.scopeIndex++;
+    this.symbolTable = new EnclosedSymbolTable(this.symbolTable);
   }
 
   leaveScope(): Instruction {
-    const instructions = Instruction.concatAll(this.currentInstructions())
+    const instructions = Instruction.concatAll(this.currentInstructions());
     this.scopes = this.scopes.slice(0, this.scopes.length - 1);
     this.scopeIndex--;
+    this.symbolTable = this.symbolTable.outer;
 
     return instructions;
   }

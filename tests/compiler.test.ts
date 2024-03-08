@@ -1,4 +1,10 @@
-import { Compiler, Symbol, SymbolScope, SymbolTable } from '../lib/compiler';
+import {
+  Compiler,
+  EnclosedSymbolTable,
+  Symbol,
+  SymbolScope,
+  SymbolTable,
+} from '../lib/compiler';
 import { Code, Instruction } from '../lib/code';
 import { OpCode, Object } from '../types';
 import { expect } from '@jest/globals';
@@ -534,6 +540,8 @@ it('should handle different scopes', () => {
   if (compiler.scopeIndex !== 0)
     throwError(`scopeIndex wrong. got=${compiler.scopeIndex}, want=0`);
 
+  const globalSymbolTable = compiler.symbolTable;
+
   compiler.emit(OpCode.OpMul);
 
   compiler.enterScope();
@@ -555,10 +563,22 @@ it('should handle different scopes', () => {
       `lastInstruction.Opcode wrong. got=${last.opCode}, want=${OpCode.OpSub}}`
     );
 
+  if (
+    !(compiler.symbolTable instanceof EnclosedSymbolTable) &&
+    (compiler.symbolTable as EnclosedSymbolTable).outer !== globalSymbolTable
+  )
+    throwError(`compiler did not enclose symbolTable`);
+
   compiler.leaveScope();
 
   if (compiler.scopeIndex !== 0)
     throwError(`scopeIndex wrong. got=${compiler.scopeIndex}, want=0`);
+
+  if (compiler.symbolTable !== globalSymbolTable)
+    throwError(`compiler did not restore global symbol table`);
+
+    if (compiler.symbolTable.outer !== null)
+    throwError(`compiler modified global symbol table incorrectly`); 
 
   compiler.emit(OpCode.OpAdd);
 
