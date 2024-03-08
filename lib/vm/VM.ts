@@ -147,15 +147,11 @@ export default class VM {
           break;
 
         case OpCode.OpCall:
+          const numArgs = ins.getUint8(ip + 1);
           this.currentFrame().ip += 1;
-          const fn = this.stack[this.stackPointer - 1];
-          if (!(fn instanceof obj.CompiledFunction))
-            throw new Error('calling non-function');
-          const frame = new Frame(fn, this.stackPointer);
-          this.pushFrame(frame);
-          this.stackPointer = frame.basePointer + fn.numLocals;
+          console.log("NUMS: ", numArgs)
+          this.callFunction(numArgs);
           break;
-
         case OpCode.OpSetLocal:
           {
             const localIndex = ins.getUint8(ip + 1);
@@ -196,6 +192,18 @@ export default class VM {
       }
     }
   }
+
+  callFunction(numArgs: number) {
+    const fn = this.stack[this.stackPointer - 1 - numArgs];
+
+    if (!(fn instanceof obj.CompiledFunction))
+      throw new Error('calling non-function');
+
+    const frame = new Frame(fn, this.stackPointer - numArgs);
+    this.pushFrame(frame);
+    this.stackPointer = frame.basePointer + fn.numLocals;
+  }
+
   executeIndexExpression(left: Object, index: Object) {
     switch (true) {
       case left.type() === ObjectType.ARRAY_OBJ &&

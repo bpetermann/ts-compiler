@@ -409,3 +409,80 @@ it('should handle calling functions with bindings', () => {
     expect(result).toEqual(true);
   });
 });
+
+it('should handle calling functions with arguments', () => {
+  const tests: [string, Object][] = [
+    [
+      `
+      let identity = fn(a) { a; };
+      identity(4);
+      `,
+      new obj.Integer(4),
+    ],
+    [
+      `
+        let sum = fn(a, b) { a + b; };
+        sum(1, 2);
+        `,
+      new obj.Integer(3),
+    ],
+    [
+      `
+        let sum = fn(a, b) {
+            let c = a + b;
+            c;
+        };
+        sum(1, 2);
+        `,
+      new obj.Integer(3),
+    ],
+    [
+      `
+        let sum = fn(a, b) {
+            let c = a + b;
+            c;
+        };
+        sum(1, 2) + sum(3, 4);`,
+      new obj.Integer(10),
+    ],
+    [
+      `
+        let sum = fn(a, b) {
+            let c = a + b;
+            c;
+        };
+        let outer = fn() {
+            sum(1, 2) + sum(3, 4);
+        };
+        outer();
+        `,
+      new obj.Integer(10),
+    ],
+    [
+      `
+        let globalNum = 10;
+
+        let sum = fn(a, b) {
+            let c = a + b;
+            c + globalNum;
+        };
+
+        let outer = fn() {
+            sum(1, 2) + sum(3, 4) + globalNum;
+        };
+
+        outer() + globalNum;
+        `,
+      new obj.Integer(50),
+    ],
+  ];
+
+  tests.forEach((test) => {
+    const [actual, expected] = test;
+
+    const stackElement = getStackTop(actual);
+    const result = testExpectedObject(expected, stackElement);
+
+    expect(result).toEqual(true);
+  });
+});
