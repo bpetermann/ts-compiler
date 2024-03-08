@@ -224,9 +224,10 @@ export default class Compiler {
         if (!this.lastInstructionIs(OpCode.OpReturnValue))
           this.emit(OpCode.OpReturn);
 
+        const numLocals = this.symbolTable.numDefinitions
         const instruction = this.leaveScope();
 
-        const compiledFn = new obj.CompiledFunction(instruction);
+        const compiledFn = new obj.CompiledFunction(instruction, numLocals);
         this.emit(OpCode.OpConstant, [this.addConstant(compiledFn)]);
         break;
       case node instanceof ast.CallExpression:

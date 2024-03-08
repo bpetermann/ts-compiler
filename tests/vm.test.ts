@@ -351,3 +351,61 @@ it('should handle first class functions', () => {
     expect(result).toEqual(true);
   });
 });
+
+it('should handle calling functions with bindings', () => {
+  const tests: [string, Object][] = [
+    [
+      `
+      let one = fn() { let one = 1; one };
+      one();
+      `,
+      new obj.Integer(1),
+    ],
+    [
+      `
+      let oneAndTwo = fn() { let one = 1; let two = 2; one + two; };
+      oneAndTwo();
+      `,
+      new obj.Integer(3),
+    ],
+    [
+      `
+        let oneAndTwo = fn() { let one = 1; let two = 2; one + two; };
+        let threeAndFour = fn() { let three = 3; let four = 4; three + four; };
+        oneAndTwo() + threeAndFour();
+        `,
+      new obj.Integer(10),
+    ],
+    [
+      `
+      let firstFoobar = fn() { let foobar = 50; foobar; };
+      let secondFoobar = fn() { let foobar = 100; foobar; };
+      firstFoobar() + secondFoobar();
+      `,
+      new obj.Integer(150),
+    ],
+    [
+      `
+      let globalSeed = 50;
+      let minusOne = fn() {
+          let num = 1;
+          globalSeed - num;
+      }
+      let minusTwo = fn() {
+          let num = 2;
+          globalSeed - num;
+      }
+      minusOne() + minusTwo()`,
+      new obj.Integer(97),
+    ],
+  ];
+
+  tests.forEach((test) => {
+    const [actual, expected] = test;
+
+    const stackElement = getStackTop(actual);
+    const result = testExpectedObject(expected, stackElement);
+
+    expect(result).toEqual(true);
+  });
+});

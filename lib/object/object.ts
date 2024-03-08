@@ -220,9 +220,11 @@ class Hash implements Object {
 
 class CompiledFunction implements Object {
   instruction: Instruction;
+  numLocals: number;
 
-  constructor(instruction: Instruction) {
+  constructor(instruction: Instruction, numLocals: number = 0) {
     this.instruction = instruction;
+    this.numLocals = numLocals;
   }
 
   type(): ObjectType {
