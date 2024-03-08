@@ -147,6 +147,7 @@ export default class VM {
           break;
 
         case OpCode.OpCall:
+          this.currentFrame().ip += 1;
           const fn = this.stack[this.stackPointer - 1];
           if (!(fn instanceof obj.CompiledFunction))
             throw new Error('calling non-function');

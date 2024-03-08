@@ -738,7 +738,7 @@ it('should compile function calls', () => {
     {
       instruction: [
         Code.make(OpCode.OpConstant, [1]),
-        Code.make(OpCode.OpCall),
+        Code.make(OpCode.OpCall, [0]),
         Code.make(OpCode.OpPop),
       ],
       constants: [
@@ -757,7 +757,7 @@ it('should compile function calls', () => {
         Code.make(OpCode.OpConstant, [1]),
         Code.make(OpCode.OpSetGlobal, [0]),
         Code.make(OpCode.OpGetGlobal, [0]),
-        Code.make(OpCode.OpCall),
+        Code.make(OpCode.OpCall, [0]),
         Code.make(OpCode.OpPop),
       ],
       constants: [
@@ -770,6 +770,104 @@ it('should compile function calls', () => {
         ),
       ],
       input: 'let noArg = fn() { 24 }; noArg();',
+    },
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpSetGlobal, [0]),
+        Code.make(OpCode.OpGetGlobal, [0]),
+        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpCall, [1]),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [
+        new obj.CompiledFunction(
+          Instruction.concatAll([Code.make(OpCode.OpReturn)])
+        ),
+        new obj.Integer(24),
+      ],
+      input: `
+      let oneArg = fn(a) { };
+      oneArg(24);
+      `,
+    },
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpSetGlobal, [0]),
+        Code.make(OpCode.OpGetGlobal, [0]),
+        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpConstant, [2]),
+        Code.make(OpCode.OpConstant, [3]),
+        Code.make(OpCode.OpCall, [3]),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [
+        new obj.CompiledFunction(
+          Instruction.concatAll([Code.make(OpCode.OpReturn)])
+        ),
+        new obj.Integer(24),
+        new obj.Integer(25),
+        new obj.Integer(26),
+      ],
+      input: `
+      let manyArg = fn(a, b, c) { };
+      manyArg(24, 25, 26);
+      `,
+    },
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpSetGlobal, [0]),
+        Code.make(OpCode.OpGetGlobal, [0]),
+        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpCall, [1]),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [
+        new obj.CompiledFunction(
+          Instruction.concatAll([
+            Code.make(OpCode.OpGetLocal, [0]),
+            Code.make(OpCode.OpReturnValue),
+          ])
+        ),
+        new obj.Integer(24),
+      ],
+      input: `
+      let oneArg = fn(a) { a };
+      oneArg(24);
+      `,
+    },
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpSetGlobal, [0]),
+        Code.make(OpCode.OpGetGlobal, [0]),
+        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpConstant, [2]),
+        Code.make(OpCode.OpConstant, [3]),
+        Code.make(OpCode.OpCall, [3]),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [
+        new obj.CompiledFunction(
+          Instruction.concatAll([
+            Code.make(OpCode.OpGetLocal, [0]),
+            Code.make(OpCode.OpPop),
+            Code.make(OpCode.OpGetLocal, [1]),
+            Code.make(OpCode.OpPop),
+            Code.make(OpCode.OpGetLocal, [2]),
+            Code.make(OpCode.OpReturnValue),
+          ])
+        ),
+        new obj.Integer(24),
+        new obj.Integer(25),
+        new obj.Integer(26),
+      ],
+      input: `
+      let manyArg = fn(a, b, c) { a; b; c };
+      manyArg(24, 25, 26);
+      `,
     },
   ];
 

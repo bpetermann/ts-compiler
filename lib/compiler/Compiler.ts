@@ -169,7 +169,7 @@ export default class Compiler {
           throw new Error(
             `undefined variable ${(node as ast.Identifier).value}`
           );
-          
+
         if (scope === SymbolScope.GlobalScope) {
           this.emit(OpCode.OpGetGlobal, [index]);
         } else {
@@ -213,10 +213,12 @@ export default class Compiler {
         this.emit(OpCode.OpIndex);
         break;
       case node instanceof ast.FunctionLiteral:
-        const FnNode = node as ast.FunctionLiteral;
+        const fnNode = node as ast.FunctionLiteral;
         this.enterScope();
 
-        this.compileNode(FnNode.body);
+        fnNode.parameters.forEach((p) => this.symbolTable.define(p.value));
+
+        this.compileNode(fnNode.body);
 
         if (this.lastInstructionIs(OpCode.OpPop))
           this.replaceLastPopWithReturn();
@@ -224,15 +226,21 @@ export default class Compiler {
         if (!this.lastInstructionIs(OpCode.OpReturnValue))
           this.emit(OpCode.OpReturn);
 
-        const numLocals = this.symbolTable.numDefinitions
+        const numLocals = this.symbolTable.numDefinitions;
         const instruction = this.leaveScope();
 
         const compiledFn = new obj.CompiledFunction(instruction, numLocals);
         this.emit(OpCode.OpConstant, [this.addConstant(compiledFn)]);
         break;
       case node instanceof ast.CallExpression:
-        this.compileNode((node as ast.CallExpression).function);
-        this.emit(OpCode.OpCall);
+        const callNode = node as ast.CallExpression;
+        this.compileNode(callNode.function);
+
+        callNode.arguments.forEach((node) => {
+          this.compileNode(node);
+        });
+
+        this.emit(OpCode.OpCall, [callNode.arguments.length]);
         break;
       case node instanceof ast.ReturnStatement:
         this.compileNode((node as ast.ReturnStatement).returnValue);
