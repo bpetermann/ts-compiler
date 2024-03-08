@@ -1,5 +1,6 @@
 enum SymbolScope {
   GlobalScope = 'GLOBAL',
+  LocalScope = 'LOCAL',
 }
 
 class SymbolTable {
@@ -26,8 +27,36 @@ class SymbolTable {
     return symbol;
   }
 
-  resolve(name: string) {
+  resolve(name: string): Symbol {
     return this._store[name];
+  }
+}
+
+class EnclosedSymbolTable extends SymbolTable {
+  outer?: SymbolTable;
+
+  constructor(outer?: SymbolTable) {
+    super();
+    this.outer = outer;
+  }
+
+  define(name: string): Symbol {
+    let scope: SymbolScope =
+      this.outer === null ? SymbolScope.GlobalScope : SymbolScope.LocalScope;
+    const symbol = new Symbol(name, scope, this.numDefinitions);
+    this.numDefinitions++;
+    this._store[name] = symbol;
+    return symbol;
+  }
+
+  resolve(name: string): Symbol {
+    let obj = this.store[name];
+
+    if (!obj && this.outer) {
+      obj = this.outer.resolve(name);
+    }
+
+    return obj;
   }
 }
 
@@ -39,4 +68,4 @@ class Symbol {
   ) {}
 }
 
-export { Symbol, SymbolTable, SymbolScope };
+export { Symbol, SymbolTable, SymbolScope, EnclosedSymbolTable };
