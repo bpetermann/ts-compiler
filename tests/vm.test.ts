@@ -486,3 +486,17 @@ it('should handle calling functions with arguments', () => {
     expect(result).toEqual(true);
   });
 });
+
+it('should throw when function called with wrong args', () => {
+  const tests: [string, number, number][] = [
+    [`fn() { 1; }(1);`, 0, 1],
+    [`fn(a) { a; }();`, 1, 0],
+    [`fn(a, b) { a + b; }(1);`, 2, 1],
+  ];
+
+  tests.forEach(([fn, want, got]) => {
+    expect(() => {
+      getStackTop(fn);
+    }).toThrow(`wrong number of arguments: want=${want}, got=${got}`);
+  });
+});

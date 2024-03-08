@@ -149,7 +149,6 @@ export default class VM {
         case OpCode.OpCall:
           const numArgs = ins.getUint8(ip + 1);
           this.currentFrame().ip += 1;
-          console.log("NUMS: ", numArgs)
           this.callFunction(numArgs);
           break;
         case OpCode.OpSetLocal:
@@ -198,6 +197,11 @@ export default class VM {
 
     if (!(fn instanceof obj.CompiledFunction))
       throw new Error('calling non-function');
+
+    if (numArgs !== fn.numParameters)
+      throw new Error(
+        `wrong number of arguments: want=${fn.numParameters}, got=${numArgs}`
+      );
 
     const frame = new Frame(fn, this.stackPointer - numArgs);
     this.pushFrame(frame);

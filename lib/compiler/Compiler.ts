@@ -229,7 +229,11 @@ export default class Compiler {
         const numLocals = this.symbolTable.numDefinitions;
         const instruction = this.leaveScope();
 
-        const compiledFn = new obj.CompiledFunction(instruction, numLocals);
+        const compiledFn = new obj.CompiledFunction(
+          instruction,
+          numLocals,
+          fnNode.parameters.length
+        );
         this.emit(OpCode.OpConstant, [this.addConstant(compiledFn)]);
         break;
       case node instanceof ast.CallExpression:

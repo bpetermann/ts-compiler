@@ -221,10 +221,16 @@ class Hash implements Object {
 class CompiledFunction implements Object {
   instruction: Instruction;
   numLocals: number;
+  numParameters: number;
 
-  constructor(instruction: Instruction, numLocals: number = 0) {
+  constructor(
+    instruction: Instruction,
+    numLocals: number = 0,
+    numParameters: number = 0
+  ) {
     this.instruction = instruction;
     this.numLocals = numLocals;
+    this.numParameters = numParameters;
   }
 
   type(): ObjectType {
