@@ -297,34 +297,6 @@ it('should compile global let statements', () => {
   });
 });
 
-it('should define symbols', () => {
-  const global = new SymbolTable();
-
-  const expected: { name: string; symbol: Symbol }[] = [
-    { name: 'a', symbol: new Symbol('a', SymbolScope.GlobalScope, 0) },
-    { name: 'b', symbol: new Symbol('b', SymbolScope.GlobalScope, 1) },
-  ];
-
-  expected.forEach(({ name, symbol }) => {
-    expect(global.define(name)).toEqual(symbol);
-  });
-});
-
-it('should resolve global defined symbols by name', () => {
-  const global = new SymbolTable();
-  global.define('a');
-  global.define('b');
-
-  const expected: Symbol[] = [
-    new Symbol('a', SymbolScope.GlobalScope, 0),
-    new Symbol('b', SymbolScope.GlobalScope, 1),
-  ];
-
-  expected.forEach((symbol) => {
-    expect(global.resolve(symbol.name)).toEqual(symbol);
-  });
-});
-
 it('should compile strings', () => {
   const expected: {
     instruction: Instruction[];
@@ -778,6 +750,86 @@ it('should compile function calls', () => {
         ),
       ],
       input: 'let noArg = fn() { 24 }; noArg();',
+    },
+  ];
+
+  expected.forEach(({ instruction, constants, input }) => {
+    const actual = compileExpression(input);
+
+    expect(helper.testConstants(constants, actual.constants)).toEqual(true);
+    expect(helper.testInstructions(instruction, actual.instruction)).toEqual(
+      true
+    );
+  });
+});
+
+it('should compile let statement scopes', () => {
+  const expected: {
+    instruction: Instruction[];
+    constants: Object[];
+    input: string;
+  }[] = [
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpSetGlobal, [0]),
+        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [
+        new obj.Integer(55),
+        new obj.CompiledFunction(
+          Instruction.concatAll([
+            Code.make(OpCode.OpGetGlobal, [0]),
+            Code.make(OpCode.OpReturnValue),
+          ])
+        ),
+      ],
+      input: `let num = 55; fn() { num }`,
+    },
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpReturnValue),
+      ],
+      constants: [
+        new obj.Integer(55),
+        new obj.CompiledFunction(
+          Instruction.concatAll([
+            Code.make(OpCode.OpConstant, [1]),
+            Code.make(OpCode.OpSetLocal, [0]),
+            Code.make(OpCode.OpGetLocal, [0]),
+            Code.make(OpCode.OpReturnValue),
+          ])
+        ),
+      ],
+      input: ' fn() {let num = 55; num}',
+    },
+    {
+      instruction: [Code.make(OpCode.OpConstant, [2]), Code.make(OpCode.OpPop)],
+      constants: [
+        new obj.Integer(55),
+        new obj.Integer(77),
+        new obj.CompiledFunction(
+          Instruction.concatAll([
+            Code.make(OpCode.OpConstant, [0]),
+            Code.make(OpCode.OpSetLocal, [0]),
+            Code.make(OpCode.OpConstant, [1]),
+            Code.make(OpCode.OpSetLocal, [1]),
+            Code.make(OpCode.OpGetLocal, [0]),
+            Code.make(OpCode.OpGetLocal, [1]),
+            Code.make(OpCode.OpAdd),
+            Code.make(OpCode.OpReturnValue),
+          ])
+        ),
+      ],
+      input: `
+      fn() {
+          let a = 55;
+          let b = 77;
+          a + b
+      }
+      `,
     },
   ];
 
