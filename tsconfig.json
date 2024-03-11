@@ -4,6 +4,7 @@
     "module": "commonjs",
     "baseUrl": ".",
     "esModuleInterop": true,
+    "noImplicitOverride": true,
     "resolveJsonModule": true,
     "moduleResolution": "node",
     "sourceMap": true,

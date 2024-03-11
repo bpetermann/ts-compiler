@@ -35,14 +35,12 @@ class SymbolTable {
 }
 
 class EnclosedSymbolTable extends SymbolTable {
-  outer: SymbolTable;
-
   constructor(outer: SymbolTable) {
     super();
     this.outer = outer;
   }
 
-  define(name: string): Symbol {
+  override define(name: string): Symbol {
     const symbol = new Symbol(
       name,
       SymbolScope.LocalScope,
@@ -53,7 +51,7 @@ class EnclosedSymbolTable extends SymbolTable {
     return symbol;
   }
 
-  resolve(name: string): Symbol {
+  override resolve(name: string): Symbol {
     let obj = this.store[name];
 
     if (!obj && this.outer) {
