@@ -1,148 +1,176 @@
 import { Object } from '../../types';
 import * as obj from '../object';
 
-export default class Builtins {
-  private static definitions: Record<string, obj.Builtin> = {
-    len: new obj.Builtin((...args: any): Object => {
-      if (args.length !== 1)
-        return new obj.Error({ type: 'args', msg: args.length });
+class Builtins {
+  static definitions: { name: string; builtin: obj.Builtin }[] = [
+    {
+      name: 'len',
+      builtin: new obj.Builtin((...args: any): Object => {
+        if (args.length !== 1)
+          return new obj.Error({ type: 'args', msg: args.length });
 
-      if (args[0] instanceof obj.String) {
-        return new obj.Integer(args[0].value.length);
-      }
+        if (args[0] instanceof obj.String) {
+          return new obj.Integer(args[0].value.length);
+        }
 
-      if (args[0] instanceof obj.Array) {
-        return new obj.Integer(args[0].elements.length);
-      }
+        if (args[0] instanceof obj.Array) {
+          return new obj.Integer(args[0].elements.length);
+        }
 
-      return new obj.Error({
-        type: 'support',
-        msg: 'len',
-        got: args[0].type(),
-      });
-    }),
-
-    toLower: new obj.Builtin((...args: any): Object => {
-      if (args.length !== 1)
-        return new obj.Error({ type: 'args', msg: args.length });
-
-      if (!(args[0] instanceof obj.String)) {
         return new obj.Error({
           type: 'support',
-          msg: 'toLower',
+          msg: 'len',
           got: args[0].type(),
         });
-      }
+      }),
+    },
+    {
+      name: 'log',
+      builtin: new obj.Builtin((...args: any): Object => {
+        args.map((arg: Object) => console.log(arg.inspect()));
 
-      return new obj.String(args[0].value.toLowerCase());
-    }),
+        return null;
+      }),
+    },
+    {
+      name: 'first',
+      builtin: new obj.Builtin((...args: any): Object => {
+        if (args.length !== 1)
+          return new obj.Error({ type: 'args', msg: args.length });
 
-    toUpper: new obj.Builtin((...args: any): Object => {
-      if (args.length !== 1) {
-        return new obj.Error({
-          type: 'args',
-          msg: args.length,
-        });
-      }
+        if (!(args[0] instanceof obj.Array)) {
+          return new obj.Error({
+            type: 'support',
+            msg: 'first',
+            got: args[0].type(),
+          });
+        }
 
-      if (!(args[0] instanceof obj.String)) {
-        return new obj.Error({
-          type: 'support',
-          msg: 'toUpper',
-          got: args[0].type(),
-        });
-      }
+        return args[0].elements[0];
+      }),
+    },
 
-      return new obj.String(args[0].value.toUpperCase());
-    }),
+    {
+      name: 'last',
+      builtin: new obj.Builtin((...args: any): Object => {
+        if (args.length !== 1)
+          return new obj.Error({ type: 'args', msg: args.length });
 
-    first: new obj.Builtin((...args: any): Object => {
-      if (args.length !== 1)
-        return new obj.Error({ type: 'args', msg: args.length });
+        if (!(args[0] instanceof obj.Array)) {
+          return new obj.Error({
+            type: 'support',
+            msg: 'last',
+            got: args[0].type(),
+          });
+        }
+        const { elements } = args[0];
+        return elements[elements.length - 1];
+      }),
+    },
+    {
+      name: 'rest',
+      builtin: new obj.Builtin((...args: any): Object => {
+        if (args.length !== 1)
+          return new obj.Error({ type: 'args', msg: args.length });
 
-      if (!(args[0] instanceof obj.Array)) {
-        return new obj.Error({
-          type: 'support',
-          msg: 'first',
-          got: args[0].type(),
-        });
-      }
+        if (!(args[0] instanceof obj.Array)) {
+          return new obj.Error({
+            type: 'support',
+            msg: 'rest',
+            got: args[0].type(),
+          });
+        }
+        const { elements } = args[0];
+        if (elements.length > 0) {
+          return new obj.Array(elements.slice(1));
+        }
 
-      return args[0].elements[0];
-    }),
-    last: new obj.Builtin((...args: any): Object => {
-      if (args.length !== 1)
-        return new obj.Error({ type: 'args', msg: args.length });
+        return null;
+      }),
+    },
+    {
+      name: 'push',
+      builtin: new obj.Builtin((...args: any): Object => {
+        if (args.length !== 2)
+          return new obj.Error({ type: 'args', msg: args.length });
 
-      if (!(args[0] instanceof obj.Array)) {
-        return new obj.Error({
-          type: 'support',
-          msg: 'last',
-          got: args[0].type(),
-        });
-      }
-      const { elements } = args[0];
-      return elements[elements.length - 1];
-    }),
+        if (!(args[0] instanceof obj.Array)) {
+          return new obj.Error({
+            type: 'support',
+            msg: 'push',
+            got: args[0].type(),
+          });
+        }
+        const { elements } = args[0];
 
-    rest: new obj.Builtin((...args: any): Object => {
-      if (args.length !== 1)
-        return new obj.Error({ type: 'args', msg: args.length });
+        return new obj.Array([...elements, args[1]]);
+      }),
+    },
+    {
+      name: 'pop',
+      builtin: new obj.Builtin((...args: any): Object => {
+        if (args.length !== 1)
+          return new obj.Error({ type: 'args', msg: args.length });
 
-      if (!(args[0] instanceof obj.Array)) {
-        return new obj.Error({
-          type: 'support',
-          msg: 'rest',
-          got: args[0].type(),
-        });
-      }
-      const { elements } = args[0];
-      if (elements.length > 0) {
-        return new obj.Array(elements.slice(1));
-      }
+        if (!(args[0] instanceof obj.Array)) {
+          return new obj.Error({
+            type: 'support',
+            msg: 'pop',
+            got: args[0].type(),
+          });
+        }
+        const { elements } = args[0];
 
-      return null;
-    }),
-    push: new obj.Builtin((...args: any): Object => {
-      if (args.length !== 2)
-        return new obj.Error({ type: 'args', msg: args.length });
+        elements.pop();
+        return new obj.Array(elements);
+      }),
+    },
+    {
+      name: 'toUpper',
+      builtin: new obj.Builtin((...args: any): Object => {
+        if (args.length !== 1) {
+          return new obj.Error({
+            type: 'args',
+            msg: args.length,
+          });
+        }
 
-      if (!(args[0] instanceof obj.Array)) {
-        return new obj.Error({
-          type: 'support',
-          msg: 'push',
-          got: args[0].type(),
-        });
-      }
-      const { elements } = args[0];
+        if (!(args[0] instanceof obj.String)) {
+          return new obj.Error({
+            type: 'support',
+            msg: 'toUpper',
+            got: args[0].type(),
+          });
+        }
 
-      return new obj.Array([...elements, args[1]]);
-    }),
-    pop: new obj.Builtin((...args: any): Object => {
-      if (args.length !== 1)
-        return new obj.Error({ type: 'args', msg: args.length });
+        return new obj.String(args[0].value.toUpperCase());
+      }),
+    },
+    {
+      name: 'toLower',
+      builtin: new obj.Builtin((...args: any): Object => {
+        if (args.length !== 1)
+          return new obj.Error({ type: 'args', msg: args.length });
 
-      if (!(args[0] instanceof obj.Array)) {
-        return new obj.Error({
-          type: 'support',
-          msg: 'pop',
-          got: args[0].type(),
-        });
-      }
-      const { elements } = args[0];
+        if (!(args[0] instanceof obj.String)) {
+          return new obj.Error({
+            type: 'support',
+            msg: 'toLower',
+            got: args[0].type(),
+          });
+        }
 
-      elements.pop();
-      return new obj.Array(elements);
-    }),
-
-    log: new obj.Builtin((...args: any): Object => {
-      args.map((arg: Object) => console.log(arg.inspect()));
-
-      return null;
-    }),
-  };
+        return new obj.String(args[0].value.toLowerCase());
+      }),
+    },
+  ];
 
   getBuiltinByName(name: string): obj.Builtin {
-    return !(name in Builtins.definitions) ? null : Builtins.definitions[name];
+    const index = Builtins.definitions.findIndex(
+      (builtin) => builtin.name === name
+    );
+    return index > -1 ? Builtins.definitions[index].builtin : null;
   }
 }
+
+export { Builtins };
