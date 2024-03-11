@@ -7,7 +7,12 @@ import {
   Expression,
   CompilationScope,
 } from '../../types';
-import { SymbolTable, EnclosedSymbolTable, SymbolScope } from './Symbol';
+import {
+  SymbolTable,
+  EnclosedSymbolTable,
+  SymbolScope,
+  Symbol,
+} from './Symbol';
 import { Instruction } from '../code';
 import * as obj from '../object';
 import { Code } from '../code';
@@ -30,6 +35,10 @@ export default class Compiler {
     this.symbolTable = new SymbolTable();
     this.scopes = [mainScope];
     this.scopeIndex = 0;
+
+    obj.Builtins.definitions.forEach(({ name }, i) =>
+      this.symbolTable.defineBuiltin(i, name)
+    );
   }
 
   newWithState(s: SymbolTable, constants: Object[]) {
@@ -162,18 +171,15 @@ export default class Compiler {
         }
         break;
       case node instanceof ast.Identifier:
-        const { scope, index } = this.symbolTable.resolve(
-          (node as ast.Identifier).value
-        );
-        if (index < 0)
-          throw new Error(
-            `undefined variable ${(node as ast.Identifier).value}`
+        {
+          const symbol = this.symbolTable.resolve(
+            (node as ast.Identifier).value
           );
-
-        if (scope === SymbolScope.GlobalScope) {
-          this.emit(OpCode.OpGetGlobal, [index]);
-        } else {
-          this.emit(OpCode.OpGetLocal, [index]);
+          if (symbol.index < 0)
+            throw new Error(
+              `undefined variable ${(node as ast.Identifier).value}`
+            );
+          this.loadSymbol(symbol);
         }
         break;
       case node instanceof ast.IntegerLiteral:
@@ -343,5 +349,19 @@ export default class Compiler {
     this.symbolTable = this.symbolTable.outer;
 
     return instructions;
+  }
+
+  private loadSymbol(s: Symbol): void {
+    switch (s.scope) {
+      case SymbolScope.GlobalScope:
+        this.emit(OpCode.OpGetGlobal, [s.index]);
+        break;
+      case SymbolScope.LocalScope:
+        this.emit(OpCode.OpGetLocal, [s.index]);
+        break;
+      case SymbolScope.BuiltinScope:
+        this.emit(OpCode.OpGetBuiltin, [s.index]);
+        break;
+    }
   }
 }

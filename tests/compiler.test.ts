@@ -957,3 +957,55 @@ it('should compile let statement scopes', () => {
     );
   });
 });
+
+it('should compile builtins', () => {
+  const expected: {
+    instruction: Instruction[];
+    constants: Object[];
+    input: string;
+  }[] = [
+    {
+      instruction: [
+        Code.make(OpCode.OpGetBuiltin, [0]),
+        Code.make(OpCode.OpArray, [0]),
+        Code.make(OpCode.OpCall, [1]),
+        Code.make(OpCode.OpPop),
+        Code.make(OpCode.OpGetBuiltin, [5]),
+        Code.make(OpCode.OpArray, [0]),
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpCall, [2]),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [],
+      input: `
+      len([]);
+      push([], 1);
+      `,
+    },
+    {
+      instruction: [Code.make(OpCode.OpConstant, [0]), Code.make(OpCode.OpPop)],
+      constants: [
+        new obj.CompiledFunction(
+          Instruction.concatAll([
+            Code.make(OpCode.OpGetBuiltin, [0]),
+            Code.make(OpCode.OpArray, [0]),
+            Code.make(OpCode.OpCall, [1]),
+            Code.make(OpCode.OpReturnValue),
+          ])
+        ),
+      ],
+      input: `fn() { len([]) }`,
+    },
+  ];
+
+  expected.forEach(({ instruction, constants, input }) => {
+    const actual = compileExpression(input);
+
+    helper.instructionComparisonLogger(instruction, actual.instruction);
+
+    expect(helper.testConstants(constants, actual.constants)).toEqual(true);
+    expect(helper.testInstructions(instruction, actual.instruction)).toEqual(
+      true
+    );
+  });
+});
