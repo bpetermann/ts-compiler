@@ -116,3 +116,28 @@ it('should define symbols', () => {
     expect(symbolTable.define(name)).toEqual(symbol);
   });
 });
+
+it('should resolve builtin functions', () => {
+  const global = new SymbolTable();
+  const firstLocal = new EnclosedSymbolTable(global);
+  const secondLocal = new EnclosedSymbolTable(firstLocal);
+
+  const symbolTables = [global, firstLocal, secondLocal];
+
+  const symbols = [
+    new Symbol('a', SymbolScope.BuiltinScope, 0),
+    new Symbol('b', SymbolScope.BuiltinScope, 1),
+    new Symbol('c', SymbolScope.BuiltinScope, 2),
+    new Symbol('d', SymbolScope.BuiltinScope, 3),
+  ];
+
+  symbols.forEach((symbol, i) => {
+    global.defineBuiltin(i, symbol.name);
+  });
+
+  symbolTables.forEach((table) => {
+    symbols.forEach((symbol) => {
+      expect(table.resolve(symbol.name)).toEqual(symbol);
+    });
+  });
+});

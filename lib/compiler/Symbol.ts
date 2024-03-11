@@ -1,6 +1,7 @@
 enum SymbolScope {
   GlobalScope = 'GLOBAL',
   LocalScope = 'LOCAL',
+  BuiltinScope = 'BUILTIN',
 }
 
 class SymbolTable {
@@ -25,6 +26,12 @@ class SymbolTable {
       this.numDefinitions
     );
     this.numDefinitions++;
+    this._store[name] = symbol;
+    return symbol;
+  }
+
+  defineBuiltin(index: number, name: string): Symbol {
+    const symbol = new Symbol(name, SymbolScope.BuiltinScope, index);
     this._store[name] = symbol;
     return symbol;
   }
