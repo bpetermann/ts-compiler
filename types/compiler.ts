@@ -8,8 +8,8 @@ export type ByteCode = {
 };
 
 export type EmmitedInstruction = {
-  opCode: OpCode;
-  position: number;
+  opCode?: OpCode;
+  position?: number;
 };
 
 export type CompilationScope = {

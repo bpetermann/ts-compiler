@@ -8,7 +8,7 @@ class IntegerLiteral implements Expression {
     this.value = Number(token.literal);
   }
 
-  expressionNode: () => void;
+  expressionNode!: () => void;
 
   getString(): string {
     return colors.blue(`${this.value}`);
@@ -26,7 +26,7 @@ class BooleanLiteral implements Expression {
     this.value = token.literal === 'true' ? true : false;
   }
 
-  expressionNode: () => void;
+  expressionNode!: () => void;
 
   getString(): string {
     return colors.blue(`${this.value}`);
@@ -39,9 +39,8 @@ class BooleanLiteral implements Expression {
 
 class PrefixExpression implements Expression {
   operator: string;
-  right: Expression;
 
-  constructor(public token: Token) {
+  constructor(public token: Token, public right: Expression) {
     this.operator = this.token.literal;
   }
 
@@ -53,24 +52,25 @@ class PrefixExpression implements Expression {
     return this.token.literal;
   }
 
-  expressionNode: () => void;
+  expressionNode!: () => void;
 }
 
 class InfixExpression implements Expression {
-  left: Expression;
   operator: string;
-  right: Expression;
 
-  constructor(public token: Token, left: Expression) {
+  constructor(
+    public token: Token,
+    public left: Expression,
+    public right: Expression
+  ) {
     this.operator = this.token.literal;
-    this.left = left;
   }
 
   getString(): string {
     return colors.green(
-      `(${this.left?.getString()} ${
+      `(${this.left.getString()} ${
         this.token.literal
-      } ${this.right?.getString()})`
+      } ${this.right.getString()})`
     );
   }
 
@@ -78,7 +78,7 @@ class InfixExpression implements Expression {
     return this.token.literal;
   }
 
-  expressionNode: () => void;
+  expressionNode!: () => void;
 }
 
 class Identifier implements Expression {
@@ -96,15 +96,17 @@ class Identifier implements Expression {
     return this.token.literal;
   }
 
-  expressionNode: () => void;
+  expressionNode!: () => void;
 }
 
 class IfExpression implements Expression {
-  condition: Expression;
-  consequence: Statement;
   alternative?: Statement;
 
-  constructor(public token: Token) {}
+  constructor(
+    public token: Token,
+    public condition: Expression,
+    public consequence: Statement
+  ) {}
 
   getString(): string {
     return colors.magenta(
@@ -118,14 +120,15 @@ class IfExpression implements Expression {
     return this.token.literal;
   }
 
-  expressionNode: () => void;
+  expressionNode!: () => void;
 }
 
 class FunctionLiteral implements Expression {
-  parameters: Identifier[];
-  body: Statement;
-
-  constructor(public token: Token) {}
+  constructor(
+    public token: Token,
+    public parameters: Identifier[],
+    public body: Statement
+  ) {}
 
   getString(): string {
     return colors.magenta(
@@ -139,14 +142,17 @@ class FunctionLiteral implements Expression {
     return this.token.literal;
   }
 
-  expressionNode: () => void;
+  expressionNode!: () => void;
 }
 
 class CallExpression implements Expression {
   function: Expression;
   arguments: Expression[];
 
-  constructor(public token: Token) {}
+  constructor(public token: Token, fn: Expression, args: Expression[]) {
+    this.function = fn;
+    this.arguments = args;
+  }
 
   getString(): string {
     return colors.magenta(
@@ -160,7 +166,7 @@ class CallExpression implements Expression {
     return this.token.literal;
   }
 
-  expressionNode: () => void;
+  expressionNode!: () => void;
 }
 
 class StringLiteral implements Expression {
@@ -178,13 +184,11 @@ class StringLiteral implements Expression {
     return this.token.literal;
   }
 
-  expressionNode: () => void;
+  expressionNode!: () => void;
 }
 
 class ArrayLiteral implements Expression {
-  elements: Expression[];
-
-  constructor(public token: Token) {}
+  constructor(public token: Token, public elements: Expression[]) {}
 
   getString(): string {
     return colors.magenta(
@@ -196,16 +200,15 @@ class ArrayLiteral implements Expression {
     return this.token.literal;
   }
 
-  expressionNode: () => void;
+  expressionNode!: () => void;
 }
 
 class IndexExpression implements Expression {
-  left: Expression;
-  index: Expression;
-
-  constructor(public token: Token, left: Expression) {
-    this.left = left;
-  }
+  constructor(
+    public token: Token,
+    public left: Expression,
+    public index: Expression
+  ) {}
 
   getString(): string {
     return colors.magenta(
@@ -217,13 +220,11 @@ class IndexExpression implements Expression {
     return this.token.literal;
   }
 
-  expressionNode: () => void;
+  expressionNode!: () => void;
 }
 
 class HashLiteral implements Expression {
-  pairs: Map<Expression, Expression>;
-
-  constructor(public token: Token) {}
+  constructor(public token: Token, public pairs: Map<Expression, Expression>) {}
 
   getString(): string {
     const keyValues: string[] = [];
@@ -237,7 +238,7 @@ class HashLiteral implements Expression {
     return this.token.literal;
   }
 
-  expressionNode: () => void;
+  expressionNode!: () => void;
 }
 
 export {

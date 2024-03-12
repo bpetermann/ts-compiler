@@ -75,7 +75,7 @@ class Error implements Object {
         this.message = `unusable as hash key: ${error.msg}`;
         break;
       default:
-        this.message = error.msg;
+        this.message = error.msg || "";
     }
   }
 
