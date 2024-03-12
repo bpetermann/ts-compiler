@@ -23,9 +23,7 @@ class LetStatement implements Statement {
 }
 
 class ReturnStatement implements Statement {
-  returnValue!: Expression;
-
-  constructor(public token: Token) {}
+  constructor(public token: Token, public returnValue: Expression) {}
 
   getString(): string {
     return colors.magenta(`return ${this.returnValue.getString()}`);
@@ -39,9 +37,7 @@ class ReturnStatement implements Statement {
 }
 
 class ExpressionStatement implements Statement {
-  expression!: Expression;
-
-  constructor(public token: Token) {}
+  constructor(public token: Token, public expression: Expression) {}
 
   getString(): string {
     return colors.blue(`${this.expression.getString()}`);
@@ -55,9 +51,7 @@ class ExpressionStatement implements Statement {
 }
 
 class BlockStatement implements Statement {
-  statements: Statement[];
-
-  constructor(public token: Token) {
+  constructor(public token: Token, public statements: Statement[] = []) {
     this.statements = [];
   }
 

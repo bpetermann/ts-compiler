@@ -144,8 +144,8 @@ export default class Parser {
     return new ast.LetStatement(token, name, value);
   }
 
-  parseReturnStatement(): ast.ReturnStatement | null {
-    const stmt = new ast.ReturnStatement(this.curToken);
+  parseReturnStatement(): ast.ReturnStatement {
+    const token = this.curToken;
 
     this.nextToken();
 
@@ -153,13 +153,11 @@ export default class Parser {
 
     if (!returnValue) throw new ParserError('returnValue');
 
-    stmt.returnValue = returnValue;
-
     if (isTokenType(this.peekToken, TokenType.SEMICOLON)) {
       this.nextToken();
     }
 
-    return stmt;
+    return new ast.ReturnStatement(token, returnValue);
   }
 
   parseIdentifier(): ast.Identifier {
@@ -450,18 +448,16 @@ export default class Parser {
   }
 
   parseExpressionStatement(): ast.ExpressionStatement | null {
-    const stmt = new ast.ExpressionStatement(this.curToken);
+    const token = this.curToken;
 
     const expression = this.parseExpression(ExpressionType.LOWEST);
 
-    if (expression) {
-      stmt.expression = expression;
-    }
-
+    if (!expression) throw new ParserError('Expression');
+    
     if (isTokenType(this.peekToken, TokenType.SEMICOLON)) {
       this.nextToken();
     }
 
-    return stmt;
+    return new ast.ExpressionStatement(token, expression);
   }
 }
