@@ -8,7 +8,7 @@ class IntegerLiteral implements Expression {
     this.value = Number(token.literal);
   }
 
-  expressionNode: () => void;
+  expressionNode!: () => void;
 
   getString(): string {
     return colors.blue(`${this.value}`);
@@ -26,7 +26,7 @@ class BooleanLiteral implements Expression {
     this.value = token.literal === 'true' ? true : false;
   }
 
-  expressionNode: () => void;
+  expressionNode!: () => void;
 
   getString(): string {
     return colors.blue(`${this.value}`);
@@ -39,9 +39,9 @@ class BooleanLiteral implements Expression {
 
 class PrefixExpression implements Expression {
   operator: string;
-  right: Expression;
+  // right: Expression;
 
-  constructor(public token: Token) {
+  constructor(public token: Token, public right: Expression) {
     this.operator = this.token.literal;
   }
 
@@ -53,13 +53,13 @@ class PrefixExpression implements Expression {
     return this.token.literal;
   }
 
-  expressionNode: () => void;
+  expressionNode!: () => void;
 }
 
 class InfixExpression implements Expression {
   left: Expression;
   operator: string;
-  right: Expression;
+  right!: Expression;
 
   constructor(public token: Token, left: Expression) {
     this.operator = this.token.literal;
@@ -78,7 +78,7 @@ class InfixExpression implements Expression {
     return this.token.literal;
   }
 
-  expressionNode: () => void;
+  expressionNode!: () => void;
 }
 
 class Identifier implements Expression {
@@ -96,12 +96,12 @@ class Identifier implements Expression {
     return this.token.literal;
   }
 
-  expressionNode: () => void;
+  expressionNode!: () => void;
 }
 
 class IfExpression implements Expression {
-  condition: Expression;
-  consequence: Statement;
+  condition!: Expression;
+  consequence!: Statement;
   alternative?: Statement;
 
   constructor(public token: Token) {}
@@ -118,12 +118,12 @@ class IfExpression implements Expression {
     return this.token.literal;
   }
 
-  expressionNode: () => void;
+  expressionNode!: () => void;
 }
 
 class FunctionLiteral implements Expression {
-  parameters: Identifier[];
-  body: Statement;
+  parameters!: Identifier[];
+  body!: Statement;
 
   constructor(public token: Token) {}
 
@@ -139,12 +139,12 @@ class FunctionLiteral implements Expression {
     return this.token.literal;
   }
 
-  expressionNode: () => void;
+  expressionNode!: () => void;
 }
 
 class CallExpression implements Expression {
-  function: Expression;
-  arguments: Expression[];
+  function!: Expression;
+  arguments!: Expression[];
 
   constructor(public token: Token) {}
 
@@ -160,7 +160,7 @@ class CallExpression implements Expression {
     return this.token.literal;
   }
 
-  expressionNode: () => void;
+  expressionNode!: () => void;
 }
 
 class StringLiteral implements Expression {
@@ -178,11 +178,11 @@ class StringLiteral implements Expression {
     return this.token.literal;
   }
 
-  expressionNode: () => void;
+  expressionNode!: () => void;
 }
 
 class ArrayLiteral implements Expression {
-  elements: Expression[];
+  elements!: Expression[];
 
   constructor(public token: Token) {}
 
@@ -196,12 +196,12 @@ class ArrayLiteral implements Expression {
     return this.token.literal;
   }
 
-  expressionNode: () => void;
+  expressionNode!: () => void;
 }
 
 class IndexExpression implements Expression {
   left: Expression;
-  index: Expression;
+  index!: Expression;
 
   constructor(public token: Token, left: Expression) {
     this.left = left;
@@ -217,11 +217,11 @@ class IndexExpression implements Expression {
     return this.token.literal;
   }
 
-  expressionNode: () => void;
+  expressionNode!: () => void;
 }
 
 class HashLiteral implements Expression {
-  pairs: Map<Expression, Expression>;
+  pairs!: Map<Expression, Expression>;
 
   constructor(public token: Token) {}
 
@@ -237,7 +237,7 @@ class HashLiteral implements Expression {
     return this.token.literal;
   }
 
-  expressionNode: () => void;
+  expressionNode!: () => void;
 }
 
 export {

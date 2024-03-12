@@ -3,10 +3,11 @@ import { Statement, Token } from '../../types';
 import colors from 'colors';
 
 class LetStatement implements Statement {
-  name: Identifier;
-  value: Expression;
-
-  constructor(public token: Token) {}
+  constructor(
+    public token: Token,
+    public name: Identifier,
+    public value: Expression
+  ) {}
 
   getString(): string {
     return colors.magenta(
@@ -22,7 +23,7 @@ class LetStatement implements Statement {
 }
 
 class ReturnStatement implements Statement {
-  returnValue: Expression;
+  returnValue!: Expression;
 
   constructor(public token: Token) {}
 
@@ -38,7 +39,7 @@ class ReturnStatement implements Statement {
 }
 
 class ExpressionStatement implements Statement {
-  expression: Expression;
+  expression!: Expression;
 
   constructor(public token: Token) {}
 

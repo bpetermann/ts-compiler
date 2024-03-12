@@ -577,7 +577,7 @@ it('should handle different scopes', () => {
   if (compiler.symbolTable !== globalSymbolTable)
     throwError(`compiler did not restore global symbol table`);
 
-  if (compiler.symbolTable.outer !== null)
+  if (compiler.symbolTable.hasOwnProperty('outer'))
     throwError(`compiler modified global symbol table incorrectly`);
 
   compiler.emit(OpCode.OpAdd);
@@ -1000,8 +1000,6 @@ it('should compile builtins', () => {
 
   expected.forEach(({ instruction, constants, input }) => {
     const actual = compileExpression(input);
-
-    helper.instructionComparisonLogger(instruction, actual.instruction);
 
     expect(helper.testConstants(constants, actual.constants)).toEqual(true);
     expect(helper.testInstructions(instruction, actual.instruction)).toEqual(

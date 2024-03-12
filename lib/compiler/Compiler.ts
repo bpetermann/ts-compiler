@@ -25,8 +25,8 @@ export default class Compiler {
   scopeIndex: number;
   private mainScope: CompilationScope = {
     instructions: [],
-    lastInstruction: { opCode: null, position: null },
-    previousInstruction: { opCode: null, position: null },
+    lastInstruction: {},
+    previousInstruction: {},
   };
 
   constructor() {
@@ -268,8 +268,11 @@ export default class Compiler {
 
   private replaceLastPopWithReturn() {
     const lastPos = this.scopes[this.scopeIndex].lastInstruction.position;
-    this.replaceInstruction(lastPos, Code.make(OpCode.OpReturnValue));
-    this.scopes[this.scopeIndex].lastInstruction.opCode = OpCode.OpReturnValue;
+    if (lastPos) {
+      this.replaceInstruction(lastPos, Code.make(OpCode.OpReturnValue));
+      this.scopes[this.scopeIndex].lastInstruction.opCode =
+        OpCode.OpReturnValue;
+    }
   }
 
   private addConstant(obj: Object): number {
@@ -339,8 +342,8 @@ export default class Compiler {
   enterScope(): void {
     const scope: CompilationScope = {
       instructions: [],
-      lastInstruction: { opCode: null, position: null },
-      previousInstruction: { opCode: null, position: null },
+      lastInstruction: {},
+      previousInstruction: {},
     };
     this.scopes.push(scope);
     this.scopeIndex++;

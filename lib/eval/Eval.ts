@@ -18,7 +18,7 @@ const HASHKEY = new obj.HashKey();
 
 export default class Eval {
   evaluate(program: ast.Program, env: obj.Environment): Object[] {
-    const results = [];
+    const results: Object[] = [];
 
     for (const statement of program.statements) {
       const result = this.evaluateNode(statement, env);
@@ -113,6 +113,7 @@ export default class Eval {
       default:
         return NULL;
     }
+    return NULL;
   }
 
   evalStatements(stmts: Statement[], env: Env): Object {
@@ -175,7 +176,7 @@ export default class Eval {
         return this.unwrapReturnValue(evaluated);
       case fn instanceof obj.Builtin:
         const builtin = fn as obj.Builtin;
-        return builtin.fn(...args);
+        return builtin.fn(...args) || NULL;
       default:
         return this.newError({ type: 'function', msg: fn.type() });
     }
@@ -354,11 +355,13 @@ export default class Eval {
 
     const key = HASHKEY.hash(index);
 
-    if (!pairs.get(key)) {
+    const pair = pairs.get(key);
+
+    if (!pair) {
       return NULL;
     }
 
-    return pairs.get(key).value;
+    return pair.value;
   }
 
   evalIndexExpression(left: Object, index: Object): Object {

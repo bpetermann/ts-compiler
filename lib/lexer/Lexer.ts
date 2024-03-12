@@ -70,7 +70,11 @@ export default class Lexer {
           ? TokenType.EQ
           : TokenType.NOT_EQ
         : (this.char as TokenType),
-      literal: peekedEqualSign ? `${this.char}=` : this.char,
+      literal: peekedEqualSign
+        ? `${this.char}=`
+        : typeof this.char === 'string'
+        ? this.char
+        : '',
     });
 
     if (peekedEqualSign) this.readChar();
@@ -103,6 +107,7 @@ export default class Lexer {
   }
 
   private nextToken(): void {
+    if (!this.char) return;
     switch (this.char) {
       case WhiteSpace.WHITESPACE:
       case WhiteSpace.TAB:

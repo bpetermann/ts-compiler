@@ -25,7 +25,7 @@ export const builtins: { name: string; builtin: obj.Builtin }[] = [
   },
   {
     name: 'log',
-    builtin: new obj.Builtin((...args: any): Object => {
+    builtin: new obj.Builtin((...args: any): Object | null=> {
       args.map((arg: Object) => console.log(arg.inspect()));
 
       return null;
@@ -68,7 +68,7 @@ export const builtins: { name: string; builtin: obj.Builtin }[] = [
   },
   {
     name: 'rest',
-    builtin: new obj.Builtin((...args: any): Object => {
+    builtin: new obj.Builtin((...args: any): Object| null => {
       if (args.length !== 1)
         return new obj.Error({ type: 'args', msg: args.length });
 
