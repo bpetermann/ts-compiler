@@ -39,7 +39,6 @@ class BooleanLiteral implements Expression {
 
 class PrefixExpression implements Expression {
   operator: string;
-  // right: Expression;
 
   constructor(public token: Token, public right: Expression) {
     this.operator = this.token.literal;
@@ -57,20 +56,21 @@ class PrefixExpression implements Expression {
 }
 
 class InfixExpression implements Expression {
-  left: Expression;
   operator: string;
-  right!: Expression;
 
-  constructor(public token: Token, left: Expression) {
+  constructor(
+    public token: Token,
+    public left: Expression,
+    public right: Expression
+  ) {
     this.operator = this.token.literal;
-    this.left = left;
   }
 
   getString(): string {
     return colors.green(
-      `(${this.left?.getString()} ${
+      `(${this.left.getString()} ${
         this.token.literal
-      } ${this.right?.getString()})`
+      } ${this.right.getString()})`
     );
   }
 
@@ -100,11 +100,13 @@ class Identifier implements Expression {
 }
 
 class IfExpression implements Expression {
-  condition!: Expression;
-  consequence!: Statement;
   alternative?: Statement;
 
-  constructor(public token: Token) {}
+  constructor(
+    public token: Token,
+    public condition: Expression,
+    public consequence: Statement
+  ) {}
 
   getString(): string {
     return colors.magenta(
@@ -122,10 +124,11 @@ class IfExpression implements Expression {
 }
 
 class FunctionLiteral implements Expression {
-  parameters!: Identifier[];
-  body!: Statement;
-
-  constructor(public token: Token) {}
+  constructor(
+    public token: Token,
+    public parameters: Identifier[],
+    public body: Statement
+  ) {}
 
   getString(): string {
     return colors.magenta(
@@ -143,10 +146,13 @@ class FunctionLiteral implements Expression {
 }
 
 class CallExpression implements Expression {
-  function!: Expression;
-  arguments!: Expression[];
+  function: Expression;
+  arguments: Expression[];
 
-  constructor(public token: Token) {}
+  constructor(public token: Token, fn: Expression, args: Expression[]) {
+    this.function = fn;
+    this.arguments = args;
+  }
 
   getString(): string {
     return colors.magenta(
@@ -182,9 +188,7 @@ class StringLiteral implements Expression {
 }
 
 class ArrayLiteral implements Expression {
-  elements!: Expression[];
-
-  constructor(public token: Token) {}
+  constructor(public token: Token, public elements: Expression[]) {}
 
   getString(): string {
     return colors.magenta(
@@ -200,12 +204,11 @@ class ArrayLiteral implements Expression {
 }
 
 class IndexExpression implements Expression {
-  left: Expression;
-  index!: Expression;
-
-  constructor(public token: Token, left: Expression) {
-    this.left = left;
-  }
+  constructor(
+    public token: Token,
+    public left: Expression,
+    public index: Expression
+  ) {}
 
   getString(): string {
     return colors.magenta(
@@ -221,9 +224,7 @@ class IndexExpression implements Expression {
 }
 
 class HashLiteral implements Expression {
-  pairs!: Map<Expression, Expression>;
-
-  constructor(public token: Token) {}
+  constructor(public token: Token, public pairs: Map<Expression, Expression>) {}
 
   getString(): string {
     const keyValues: string[] = [];

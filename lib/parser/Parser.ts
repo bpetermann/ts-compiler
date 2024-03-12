@@ -194,7 +194,7 @@ export default class Parser {
   }
 
   parseIfExpression(): ast.IfExpression | null {
-    const expression = new ast.IfExpression(this.curToken);
+    const token = this.curToken;
 
     if (!this.expectPeek(TokenType.LPAREN)) {
       return null;
@@ -206,8 +206,6 @@ export default class Parser {
 
     if (!condition) throw new ParserError('condition');
 
-    expression.condition = condition;
-
     if (!this.expectPeek(TokenType.RPAREN)) {
       return null;
     }
@@ -216,7 +214,9 @@ export default class Parser {
       return null;
     }
 
-    expression.consequence = this.parseBlockStatement();
+    const consequence = this.parseBlockStatement();
+
+    const expression = new ast.IfExpression(token, condition, consequence);
 
     if (isTokenType(this.peekToken, TokenType.ELSE)) {
       this.nextToken();
@@ -232,12 +232,11 @@ export default class Parser {
   }
 
   parseCallExpression(fn: ast.Expression): ast.CallExpression {
-    const expression = new ast.CallExpression(this.curToken);
-    expression.function = fn;
-
-    expression.arguments = this.parseExpressionList(TokenType.RPAREN);
-
-    return expression;
+    return new ast.CallExpression(
+      this.curToken,
+      fn,
+      this.parseExpressionList(TokenType.RPAREN)
+    );
   }
 
   parseFunctionParameters(): ast.Identifier[] {
@@ -267,21 +266,21 @@ export default class Parser {
   }
 
   parseFunction(): ast.FunctionLiteral | null {
-    const func = new ast.FunctionLiteral(this.curToken);
+    const token = this.curToken;
 
     if (!this.expectPeek(TokenType.LPAREN)) {
       return null;
     }
 
-    func.parameters = this.parseFunctionParameters();
+    const parameters = this.parseFunctionParameters();
 
     if (!this.expectPeek(TokenType.LBRACE)) {
       return null;
     }
 
-    func.body = this.parseBlockStatement();
+    const body = this.parseBlockStatement();
 
-    return func;
+    return new ast.FunctionLiteral(token, parameters, body);
   }
 
   parseGroupedExpression(): ast.Expression | null {
@@ -309,7 +308,7 @@ export default class Parser {
   }
 
   parseInfixExpression(left: ast.Expression): ast.InfixExpression {
-    const expression = new ast.InfixExpression(this.curToken, left);
+    const token = this.curToken;
 
     const precedence = precedences(this.curToken.type);
 
@@ -319,9 +318,7 @@ export default class Parser {
 
     if (!right) throw new ParserError('Expression');
 
-    expression.right = right;
-
-    return expression;
+    return new ast.InfixExpression(token, left, right);
   }
 
   parseStringLiteral(): ast.StringLiteral {
@@ -360,33 +357,27 @@ export default class Parser {
   }
 
   parseArray(): ast.ArrayLiteral {
-    const arr = new ast.ArrayLiteral(this.curToken);
+    const elements = this.parseExpressionList(TokenType.RBRACKET);
 
-    arr.elements = this.parseExpressionList(TokenType.RBRACKET);
-
-    return arr;
+    return new ast.ArrayLiteral(this.curToken, elements);
   }
 
   parseIndexExpression(left: ast.Expression): ast.Expression {
-    const exp = new ast.IndexExpression(this.curToken, left);
+    const token = this.curToken;
 
     this.nextToken();
 
     const index = this.parseExpression(ExpressionType.LOWEST);
 
-    if (!index) throw new ParserError('Index');
+    if (!index || !this.expectPeek(TokenType.RBRACKET))
+      throw new ParserError(`Index or "${TokenType.RBRACKET}`);
 
-    exp.index = index;
-
-    if (!this.expectPeek(TokenType.RBRACKET))
-      throw new ParserError(TokenType.RBRACKET);
-
-    return exp;
+    return new ast.IndexExpression(token, left, index);
   }
 
   parseHashLiteral(): ast.HashLiteral {
-    const hash = new ast.HashLiteral(this.curToken);
-    hash.pairs = new Map();
+    const token = this.curToken;
+    const pairs = new Map();
 
     while (!isTokenType(this.peekToken, TokenType.RBRACE)) {
       this.nextToken();
@@ -401,19 +392,19 @@ export default class Parser {
 
       if (!value) throw new ParserError('Expression');
 
-      hash.pairs.set(key, value);
+      pairs.set(key, value);
 
       if (
         !isTokenType(this.peekToken, TokenType.RBRACE) &&
         !this.expectPeek(TokenType.COMMA)
       )
-        throw new ParserError(`${TokenType.RBRACE} or ${TokenType.COMMA}`);
+        throw new ParserError(`Expected ${TokenType.RBRACE} or ${TokenType.COMMA}`);
     }
 
     if (!this.expectPeek(TokenType.RBRACE))
       throw new ParserError(TokenType.RBRACE);
 
-    return hash;
+    return new ast.HashLiteral(this.curToken, pairs);
   }
 
   parseExpression(precedence: ExpressionType): ast.Expression | null {
@@ -453,7 +444,7 @@ export default class Parser {
     const expression = this.parseExpression(ExpressionType.LOWEST);
 
     if (!expression) throw new ParserError('Expression');
-    
+
     if (isTokenType(this.peekToken, TokenType.SEMICOLON)) {
       this.nextToken();
     }
