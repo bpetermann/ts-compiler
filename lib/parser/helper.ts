@@ -17,11 +17,11 @@ const precedences = (type: TokenType): number => {
   );
 };
 
-class ParserError extends Error {
+class ParseError extends Error {
   constructor(message: string) {
     super(`Could not parse: ${message}`);
-    this.name = 'ParserError';
+    this.name = 'ParseError';
   }
 }
 
-export { precedences, ParserError };
+export { precedences, ParseError };
