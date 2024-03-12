@@ -23,20 +23,22 @@ export default class Compiler {
   symbolTable: SymbolTable | EnclosedSymbolTable;
   scopes: CompilationScope[];
   scopeIndex: number;
+  private mainScope: CompilationScope = {
+    instructions: [],
+    lastInstruction: { opCode: null, position: null },
+    previousInstruction: { opCode: null, position: null },
+  };
 
   constructor() {
-    const mainScope: CompilationScope = {
-      instructions: [],
-      lastInstruction: { opCode: null, position: null },
-      previousInstruction: { opCode: null, position: null },
-    };
-
     this.constants = [];
     this.symbolTable = new SymbolTable();
-    this.scopes = [mainScope];
+    this.scopes = [this.mainScope];
     this.scopeIndex = 0;
+    this.addBuiltins();
+  }
 
-    obj.Builtins.definitions.forEach(({ name }, i) =>
+  private addBuiltins(): void {
+    obj.builtins.forEach(({ name }, i) =>
       this.symbolTable.defineBuiltin(i, name)
     );
   }
@@ -208,7 +210,10 @@ export default class Compiler {
           .sort((a, b) => a.getString().localeCompare(b.getString()))
           .forEach((key) => {
             this.compileNode(key);
-            this.compileNode(hashNode.pairs.get(key));
+            const value = hashNode.pairs.get(key);
+            if (value !== undefined) {
+              this.compileNode(value);
+            }
           });
 
         this.emit(OpCode.OpHash, [hashNode.pairs.size * 2]);
@@ -346,6 +351,8 @@ export default class Compiler {
     const instructions = Instruction.concatAll(this.currentInstructions());
     this.scopes = this.scopes.slice(0, this.scopes.length - 1);
     this.scopeIndex--;
+    if (!(this.symbolTable instanceof EnclosedSymbolTable))
+      throw new Error('cannot leave scope: already at the outermost scope');
     this.symbolTable = this.symbolTable.outer;
 
     return instructions;
