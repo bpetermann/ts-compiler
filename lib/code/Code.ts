@@ -34,6 +34,7 @@ export default class Code {
     [OpCode.OpGetLocal]: { name: 'OpGetLocal', operandWidths: [1] },
     [OpCode.OpSetLocal]: { name: 'OpSetLocal', operandWidths: [1] },
     [OpCode.OpGetBuiltin]: { name: 'OpGetBuiltin', operandWidths: [1] },
+    [OpCode.OpClosure]: { name: 'OpClosure', operandWidths: [2, 1] },
   };
 
   static lookUp(op: number): undefined | Definition {
