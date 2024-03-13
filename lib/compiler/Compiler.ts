@@ -245,7 +245,8 @@ export default class Compiler {
           numLocals,
           fnNode.parameters.length
         );
-        this.emit(OpCode.OpConstant, [this.addConstant(compiledFn)]);
+        const fnIndex = this.addConstant(compiledFn);
+        this.emit(OpCode.OpClosure, [fnIndex, 0]);
         break;
       case node instanceof ast.CallExpression:
         const callNode = node as ast.CallExpression;

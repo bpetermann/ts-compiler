@@ -22,6 +22,9 @@ export default class VM {
   private globals: Object[];
   private frames: Frame[];
   private framesIndex: number;
+  private mainFn: obj.CompiledFunction;
+  private mainClosure: obj.Closure;
+  private mainFrame: Frame;
 
   constructor(
     byteCode: ByteCode = { instruction: new Instruction(0), constants: [] }
@@ -34,8 +37,12 @@ export default class VM {
     this.stack = [];
     this.stackPointer = 0;
     this.globals = new Array(GLOBALS_SIZE);
+    this.mainFn = new obj.CompiledFunction(instruction);
+    this.mainClosure = new obj.Closure(this.mainFn);
+    this.mainFrame = new Frame(this.mainClosure, 0);
+
     this.frames = new Array(MAX_FRAMES);
-    this.frames[0] = new Frame(new obj.CompiledFunction(instruction), 0);
+    this.frames[0] = this.mainFrame;
     this.framesIndex = 1;
   }
 
@@ -196,6 +203,15 @@ export default class VM {
 
           this.push(builtin);
           break;
+        case OpCode.OpClosure:
+          {
+            const constIndex = ins.getUint16(ip + 1);
+            const _ = ins.getUint8(ip + 3);
+            this.currentFrame().ip += 3;
+
+            this.pushClosure(constIndex);
+          }
+          break;
         case OpCode.OpPop:
           this.pop();
           break;
@@ -203,18 +219,27 @@ export default class VM {
     }
   }
 
+  pushClosure(constIndex: number) {
+    const constant = this.constants[constIndex];
+    if (!(constant instanceof obj.CompiledFunction))
+      throw new Error(`not a function: ${constant}`);
+
+    const closure = new obj.Closure(constant);
+    this.push(closure);
+  }
+
   executeCall(numArgs: number) {
     const callee = this.stack[this.stackPointer - 1 - numArgs];
 
     switch (callee.type()) {
-      case ObjectType.COMPILED_FUNCTION_OBJ:
-        this.callFunction(callee as obj.CompiledFunction, numArgs);
+      case ObjectType.CLOSURE_OBJ:
+        this.callClosure(callee as obj.Closure, numArgs);
         break;
       case ObjectType.BUILTIN_OBJ:
         this.callBuiltin(callee as obj.Builtin, numArgs);
         break;
       default:
-        throw new Error('calling non-function and non-built-in');
+        throw new Error('calling non-closure and non-built-in');
     }
   }
 
@@ -232,15 +257,15 @@ export default class VM {
     }
   }
 
-  callFunction(fn: obj.CompiledFunction, numArgs: number) {
-    if (numArgs !== fn.numParameters)
+  callClosure(cl: obj.Closure, numArgs: number) {
+    if (numArgs !== cl.fn.numParameters)
       throw new Error(
-        `wrong number of arguments: want=${fn.numParameters}, got=${numArgs}`
+        `wrong number of arguments: want=${cl.fn.numParameters}, got=${numArgs}`
       );
 
-    const frame = new Frame(fn, this.stackPointer - numArgs);
+    const frame = new Frame(cl, this.stackPointer - numArgs);
     this.pushFrame(frame);
-    this.stackPointer = frame.basePointer + fn.numLocals;
+    this.stackPointer = frame.basePointer + cl.fn.numLocals;
   }
 
   executeIndexExpression(left: Object, index: Object) {

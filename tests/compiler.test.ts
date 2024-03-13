@@ -611,7 +611,10 @@ it('should compile functions', () => {
     input: string;
   }[] = [
     {
-      instruction: [Code.make(OpCode.OpConstant, [2]), Code.make(OpCode.OpPop)],
+      instruction: [
+        Code.make(OpCode.OpClosure, [2, 0]),
+        Code.make(OpCode.OpPop),
+      ],
       constants: [
         new obj.Integer(5),
         new obj.Integer(10),
@@ -645,7 +648,10 @@ it('should compile implicit return functions', () => {
     input: string;
   }[] = [
     {
-      instruction: [Code.make(OpCode.OpConstant, [2]), Code.make(OpCode.OpPop)],
+      instruction: [
+        Code.make(OpCode.OpClosure, [2, 0]),
+        Code.make(OpCode.OpPop),
+      ],
       constants: [
         new obj.Integer(5),
         new obj.Integer(10),
@@ -679,7 +685,10 @@ it('should compile implicit return functions', () => {
     input: string;
   }[] = [
     {
-      instruction: [Code.make(OpCode.OpConstant, [2]), Code.make(OpCode.OpPop)],
+      instruction: [
+        Code.make(OpCode.OpClosure, [2, 0]),
+        Code.make(OpCode.OpPop),
+      ],
       constants: [
         new obj.Integer(1),
         new obj.Integer(2),
@@ -713,7 +722,10 @@ it('should compile empty function bodys', () => {
     input: string;
   }[] = [
     {
-      instruction: [Code.make(OpCode.OpConstant, [0]), Code.make(OpCode.OpPop)],
+      instruction: [
+        Code.make(OpCode.OpClosure, [0, 0]),
+        Code.make(OpCode.OpPop),
+      ],
       constants: [new obj.CompiledFunction(Code.make(OpCode.OpReturn))],
       input: `fn() { }`,
     },
@@ -737,7 +749,7 @@ it('should compile function calls', () => {
   }[] = [
     {
       instruction: [
-        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpClosure, [1, 0]),
         Code.make(OpCode.OpCall, [0]),
         Code.make(OpCode.OpPop),
       ],
@@ -754,7 +766,7 @@ it('should compile function calls', () => {
     },
     {
       instruction: [
-        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpClosure, [1, 0]),
         Code.make(OpCode.OpSetGlobal, [0]),
         Code.make(OpCode.OpGetGlobal, [0]),
         Code.make(OpCode.OpCall, [0]),
@@ -773,7 +785,7 @@ it('should compile function calls', () => {
     },
     {
       instruction: [
-        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpClosure, [0, 0]),
         Code.make(OpCode.OpSetGlobal, [0]),
         Code.make(OpCode.OpGetGlobal, [0]),
         Code.make(OpCode.OpConstant, [1]),
@@ -793,7 +805,7 @@ it('should compile function calls', () => {
     },
     {
       instruction: [
-        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpClosure, [0, 0]),
         Code.make(OpCode.OpSetGlobal, [0]),
         Code.make(OpCode.OpGetGlobal, [0]),
         Code.make(OpCode.OpConstant, [1]),
@@ -817,7 +829,7 @@ it('should compile function calls', () => {
     },
     {
       instruction: [
-        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpClosure, [0, 0]),
         Code.make(OpCode.OpSetGlobal, [0]),
         Code.make(OpCode.OpGetGlobal, [0]),
         Code.make(OpCode.OpConstant, [1]),
@@ -840,7 +852,7 @@ it('should compile function calls', () => {
     },
     {
       instruction: [
-        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpClosure, [0, 0]),
         Code.make(OpCode.OpSetGlobal, [0]),
         Code.make(OpCode.OpGetGlobal, [0]),
         Code.make(OpCode.OpConstant, [1]),
@@ -891,7 +903,7 @@ it('should compile let statement scopes', () => {
       instruction: [
         Code.make(OpCode.OpConstant, [0]),
         Code.make(OpCode.OpSetGlobal, [0]),
-        Code.make(OpCode.OpConstant, [1]),
+        Code.make(OpCode.OpClosure, [1, 0]),
         Code.make(OpCode.OpPop),
       ],
       constants: [
@@ -906,7 +918,10 @@ it('should compile let statement scopes', () => {
       input: `let num = 55; fn() { num }`,
     },
     {
-      instruction: [Code.make(OpCode.OpConstant, [1]), Code.make(OpCode.OpPop)],
+      instruction: [
+        Code.make(OpCode.OpClosure, [1, 0]),
+        Code.make(OpCode.OpPop),
+      ],
       constants: [
         new obj.Integer(55),
         new obj.CompiledFunction(
@@ -921,7 +936,10 @@ it('should compile let statement scopes', () => {
       input: ' fn() {let num = 55; num}',
     },
     {
-      instruction: [Code.make(OpCode.OpConstant, [2]), Code.make(OpCode.OpPop)],
+      instruction: [
+        Code.make(OpCode.OpClosure, [2, 0]),
+        Code.make(OpCode.OpPop),
+      ],
       constants: [
         new obj.Integer(55),
         new obj.Integer(77),
@@ -983,7 +1001,10 @@ it('should compile builtins', () => {
       `,
     },
     {
-      instruction: [Code.make(OpCode.OpConstant, [0]), Code.make(OpCode.OpPop)],
+      instruction: [
+        Code.make(OpCode.OpClosure, [0, 0]),
+        Code.make(OpCode.OpPop),
+      ],
       constants: [
         new obj.CompiledFunction(
           Instruction.concatAll([

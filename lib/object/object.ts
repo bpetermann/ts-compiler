@@ -243,7 +243,7 @@ class CompiledFunction implements Object {
 }
 
 class Closure implements Object {
-  constructor(public fn: CompiledFunction, public free: Object[]) {}
+  constructor(public fn: CompiledFunction, public free: Object[] = []) {}
 
   type(): ObjectType {
     return ObjectType.CLOSURE_OBJ;
