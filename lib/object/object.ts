@@ -75,7 +75,7 @@ class Error implements Object {
         this.message = `unusable as hash key: ${error.msg}`;
         break;
       default:
-        this.message = error.msg || "";
+        this.message = error.msg || '';
     }
   }
 
@@ -242,6 +242,17 @@ class CompiledFunction implements Object {
   }
 }
 
+class Closure implements Object {
+  constructor(public fn: CompiledFunction, public free: Object[]) {}
+
+  type(): ObjectType {
+    return ObjectType.CLOSURE_OBJ;
+  }
+  inspect(): string {
+    return colors.gray(`Closure[${this}]`);
+  }
+}
+
 export {
   ReturnValue,
   Integer,
@@ -256,4 +267,5 @@ export {
   HashKey,
   HashPair,
   CompiledFunction,
+  Closure,
 };

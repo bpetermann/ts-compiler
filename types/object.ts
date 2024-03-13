@@ -15,6 +15,7 @@ export const enum ObjectType {
   ARRAY_OBJ = 'ARRAY',
   HASH_OBJ = 'HASH',
   COMPILED_FUNCTION_OBJ = 'COMPILED_FUNCTION_OBJ',
+  CLOSURE_OBJ = "CLOSURE"
 }
 
 export interface Object {
