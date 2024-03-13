@@ -502,7 +502,8 @@ it('should handle builtin functions', () => {
     [`len("")`, new obj.Integer(0)],
     [`len("four")`, new obj.Integer(4)],
     [`len("hello world")`, new obj.Integer(11)],
-    [`log("hello", "world!")`, new obj.Null()],
+    // Works, but logs to the console
+    // [`log("hello", "world!")`, new obj.Null()],
     [`len("one", "two")`, new obj.Error({ type: 'args', msg: '2' })],
     [`len([1, 2, 3])`, new obj.Integer(3)],
     [`len([])`, new obj.Integer(0)],

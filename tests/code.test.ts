@@ -103,12 +103,59 @@ it('should decode ony byte operands', () => {
   );
 });
 
-it('should decode ony byte operands', () => {
+it('should decode one byte operands', () => {
   const operands = [255];
   const bytesRead = 1;
 
   const def = Code.lookUp(OpCode.OpGetLocal);
   const ins = Code.make(OpCode.OpGetLocal, operands);
+
+  if (!def) {
+    throw new Error('OpCode not found');
+  }
+
+  const { operands: operandsRead, offset } = Code.readOperands(
+    def,
+    ins.slice(1)
+  );
+
+  expect(offset).toEqual(bytesRead);
+
+  for (let i = 0; i < operands.length; i++) {
+    expect(operandsRead[i]).toEqual(operands[i]);
+  }
+});
+
+it('should work with an operand width size of two', () => {
+  const instruction = [
+    Code.make(OpCode.OpAdd, []),
+    Code.make(OpCode.OpGetLocal, [1]),
+    Code.make(OpCode.OpConstant, [2]),
+    Code.make(OpCode.OpConstant, [65535]),
+    Code.make(OpCode.OpClosure, [65535, 255]),
+  ];
+
+  const expected = `
+  0 OpAdd
+  1 OpGetLocal 1
+  3 OpConstant 2 
+  6 OpConstant 65535
+  9 OpClosure 65535 255
+  `;
+
+  const concatted = concatInstructions(instruction);
+
+  expect(expect.stringMatching(cleanString(concatted.string()))).toEqual(
+    expected
+  );
+});
+
+it('should decode the operands of a closure instruction', () => {
+  const operands = [65534, 255];
+  const bytesRead = 3;
+
+  const def = Code.lookUp(OpCode.OpClosure);
+  const ins = Code.make(OpCode.OpClosure, operands);
 
   if (!def) {
     throw new Error('OpCode not found');

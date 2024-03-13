@@ -95,6 +95,8 @@ export default class Instruction {
         return `${def.name}`;
       case 1:
         return `${def.name} ${operands[0]}`;
+      case 2:
+        return `${def.name} ${operands[0]} ${operands[1]}`;
 
       default:
         throw new Error(
