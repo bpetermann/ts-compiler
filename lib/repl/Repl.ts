@@ -1,5 +1,6 @@
 import { TokenType, Object, ByteCode } from '../../types';
 import { Compiler, SymbolTable } from '../compiler';
+import { builtins } from '../object';
 import { Parser } from '../parser';
 import readline from 'readline';
 import * as ast from '../ast';
@@ -24,6 +25,11 @@ export default class Repl {
     this.constants = [];
     this.symbolTable = new SymbolTable();
     this.globals = new Array(this.vm.globalSize);
+    this.addBuiltins();
+  }
+
+  private addBuiltins(): void {
+    builtins.forEach(({ name }, i) => this.symbolTable.defineBuiltin(i, name));
   }
 
   start() {
@@ -45,6 +51,8 @@ export default class Repl {
 
   private print(line: string) {
     const program = this.parse(line);
+    if (!program) return;
+
     const code = this.compile(program);
 
     const machine = this.vm.newWithGlobalStore(code, this.globals);
@@ -54,7 +62,7 @@ export default class Repl {
     console.log(lastPoppedStackElem.inspect());
   }
 
-  private parse(line: string): ast.Program {
+  private parse(line: string): ast.Program | undefined {
     const parser = new Parser(line);
     const program = parser.parse();
 
