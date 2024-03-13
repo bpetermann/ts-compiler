@@ -124,6 +124,7 @@ export default class VM {
             this.stackPointer - numElements,
             this.stackPointer
           );
+          this.stackPointer = this.stackPointer - numElements;
           this.push(array);
           break;
         case OpCode.OpHash:
