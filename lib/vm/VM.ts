@@ -125,6 +125,7 @@ export default class VM {
             this.stackPointer
           );
           this.stackPointer = this.stackPointer - numElements;
+
           this.push(array);
           break;
         case OpCode.OpHash:
@@ -150,7 +151,8 @@ export default class VM {
         case OpCode.OpCall:
           const numArgs = ins.getUint8(ip + 1);
           this.currentFrame().ip += 1;
-          this.callFunction(numArgs);
+
+          this.executeCall(numArgs);
           break;
         case OpCode.OpSetLocal:
           {
@@ -186,6 +188,14 @@ export default class VM {
             this.push(NULL);
           }
           break;
+        case OpCode.OpGetBuiltin:
+          const builtinIndex = ins.getUint8(ip + 1);
+          this.currentFrame().ip += 1;
+
+          const { builtin } = obj.builtins[builtinIndex];
+
+          this.push(builtin);
+          break;
         case OpCode.OpPop:
           this.pop();
           break;
@@ -193,12 +203,36 @@ export default class VM {
     }
   }
 
-  callFunction(numArgs: number) {
-    const fn = this.stack[this.stackPointer - 1 - numArgs];
+  executeCall(numArgs: number) {
+    const callee = this.stack[this.stackPointer - 1 - numArgs];
 
-    if (!(fn instanceof obj.CompiledFunction))
-      throw new Error('calling non-function');
+    switch (callee.type()) {
+      case ObjectType.COMPILED_FUNCTION_OBJ:
+        this.callFunction(callee as obj.CompiledFunction, numArgs);
+        break;
+      case ObjectType.BUILTIN_OBJ:
+        this.callBuiltin(callee as obj.Builtin, numArgs);
+        break;
+      default:
+        throw new Error('calling non-function and non-built-in');
+    }
+  }
 
+  callBuiltin(builtin: obj.Builtin, numArgs: number) {
+    const start = this.stackPointer - numArgs;
+    const args = this.stack.slice(start, this.stackPointer);
+
+    const result = builtin.fn(...args);
+    this.stackPointer = this.stackPointer - numArgs - 1;
+
+    if (result !== null) {
+      this.push(result);
+    } else {
+      this.push(NULL);
+    }
+  }
+
+  callFunction(fn: obj.CompiledFunction, numArgs: number) {
     if (numArgs !== fn.numParameters)
       throw new Error(
         `wrong number of arguments: want=${fn.numParameters}, got=${numArgs}`

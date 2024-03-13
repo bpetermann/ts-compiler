@@ -46,6 +46,11 @@ const testExpectedObject = (expected: Object, actual: Object): boolean => {
         }
       });
       return true;
+    case ObjectType.ERROR_OBJ:
+      return (
+        actual.type() === ObjectType.ERROR_OBJ &&
+        (expected as obj.Error).message === (actual as obj.Error).message
+      );
     default:
       return false;
   }
@@ -476,15 +481,6 @@ it('should handle calling functions with arguments', () => {
       new obj.Integer(50),
     ],
   ];
-
-  tests.forEach((test) => {
-    const [actual, expected] = test;
-
-    const stackElement = getStackTop(actual);
-    const result = testExpectedObject(expected, stackElement);
-
-    expect(result).toEqual(true);
-  });
 });
 
 it('should throw when function called with wrong args', () => {
@@ -498,5 +494,49 @@ it('should throw when function called with wrong args', () => {
     expect(() => {
       getStackTop(fn);
     }).toThrow(`wrong number of arguments: want=${want}, got=${got}`);
+  });
+});
+
+it('should handle builtin functions', () => {
+  const tests: [string, Object][] = [
+    [`len("")`, new obj.Integer(0)],
+    [`len("four")`, new obj.Integer(4)],
+    [`len("hello world")`, new obj.Integer(11)],
+    [`log("hello", "world!")`, new obj.Null()],
+    [`len("one", "two")`, new obj.Error({ type: 'args', msg: '2' })],
+    [`len([1, 2, 3])`, new obj.Integer(3)],
+    [`len([])`, new obj.Integer(0)],
+    [`last([1, 2, 3])`, new obj.Integer(3)],
+    [`first([1, 2, 3])`, new obj.Integer(1)],
+    [`last([1, 2, 3])`, new obj.Integer(3)],
+    [
+      `last(1)`,
+      new obj.Error({ type: 'support', msg: 'last', got: 'INTEGER' }),
+    ],
+    [`last([])`, new obj.Null()],
+
+    [
+      `rest([1, 2, 3])`,
+      new obj.Array([new obj.Integer(2), new obj.Integer(3)]),
+    ],
+    [`rest([])`, new obj.Null()],
+    [`push([], 1)`, new obj.Array([new obj.Integer(1)])],
+    [
+      `push(1, 1)`,
+      new obj.Error({
+        type: 'support',
+        msg: 'push',
+        got: 'INTEGER',
+      }),
+    ],
+  ];
+
+  tests.forEach((test) => {
+    const [actual, expected] = test;
+
+    const stackElement = getStackTop(actual);
+
+    const result = testExpectedObject(expected, stackElement);
+    expect(result).toEqual(true);
   });
 });
