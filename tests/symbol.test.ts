@@ -141,3 +141,69 @@ it('should resolve builtin functions', () => {
     });
   });
 });
+
+it('should resolve free symbols', () => {
+  const global = new SymbolTable();
+  global.define('a');
+  global.define('b');
+
+  const firstLocal = new EnclosedSymbolTable(global);
+  firstLocal.define('c');
+  firstLocal.define('d');
+
+  const secondLocal = new EnclosedSymbolTable(firstLocal);
+  secondLocal.define('e');
+  secondLocal.define('f');
+
+  [
+    { name: 'a', symbol: new Symbol('a', SymbolScope.GlobalScope, 0) },
+    { name: 'b', symbol: new Symbol('b', SymbolScope.GlobalScope, 1) },
+    { name: 'c', symbol: new Symbol('c', SymbolScope.LocalScope, 0) },
+    { name: 'd', symbol: new Symbol('d', SymbolScope.LocalScope, 1) },
+  ].forEach(({ name, symbol }) => {
+    expect(firstLocal.resolve(name)).toEqual(symbol);
+  });
+
+  [
+    { name: 'a', symbol: new Symbol('a', SymbolScope.GlobalScope, 0) },
+    { name: 'b', symbol: new Symbol('b', SymbolScope.GlobalScope, 1) },
+    { name: 'c', symbol: new Symbol('c', SymbolScope.FreeScope, 0) },
+    { name: 'd', symbol: new Symbol('d', SymbolScope.FreeScope, 1) },
+    { name: 'e', symbol: new Symbol('e', SymbolScope.LocalScope, 0) },
+    { name: 'f', symbol: new Symbol('f', SymbolScope.LocalScope, 1) },
+  ].forEach(({ name, symbol }) => {
+    expect(secondLocal.resolve(name)).toEqual(symbol);
+  });
+
+  [
+    { name: 'c', symbol: new Symbol('c', SymbolScope.LocalScope, 0) },
+    { name: 'd', symbol: new Symbol('d', SymbolScope.LocalScope, 1) },
+  ].forEach(({ symbol }, i) => {
+    expect(secondLocal.freeSymbols[i]).toEqual(symbol);
+  });
+});
+
+it('should not automatically mark every symbol as free', () => {
+  const global = new SymbolTable();
+  global.define('a');
+
+  const firstLocal = new EnclosedSymbolTable(global);
+  firstLocal.define('c');
+
+  const secondLocal = new EnclosedSymbolTable(firstLocal);
+  secondLocal.define('e');
+  secondLocal.define('f');
+
+  [
+    { name: 'a', symbol: new Symbol('a', SymbolScope.GlobalScope, 0) },
+    { name: 'c', symbol: new Symbol('c', SymbolScope.FreeScope, 0) },
+    { name: 'e', symbol: new Symbol('e', SymbolScope.LocalScope, 0) },
+    { name: 'f', symbol: new Symbol('f', SymbolScope.LocalScope, 1) },
+  ].forEach(({ name, symbol }) => {
+    expect(secondLocal.resolve(name)).toEqual(symbol);
+  });
+
+  ['b', 'd'].forEach((name) => {
+    expect(secondLocal.resolve(name)).toEqual(undefined);
+  });
+});

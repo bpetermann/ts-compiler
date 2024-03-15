@@ -2,15 +2,18 @@ enum SymbolScope {
   GlobalScope = 'GLOBAL',
   LocalScope = 'LOCAL',
   BuiltinScope = 'BUILTIN',
+  FreeScope = 'FREE',
 }
 
 class SymbolTable {
   _store: { [k: string]: Symbol };
   numDefinitions: number;
+  freeSymbols: Symbol[];
 
   constructor() {
     this._store = {};
     this.numDefinitions = 0;
+    this.freeSymbols = [];
   }
 
   get store() {
@@ -31,6 +34,17 @@ class SymbolTable {
   defineBuiltin(index: number, name: string): Symbol {
     const symbol = new Symbol(name, SymbolScope.BuiltinScope, index);
     this._store[name] = symbol;
+    return symbol;
+  }
+
+  defineFree(original: Symbol): Symbol {
+    this.freeSymbols.push(original);
+    const symbol = new Symbol(
+      original.name,
+      SymbolScope.FreeScope,
+      this.freeSymbols.length - 1
+    );
+    this.store[original.name] = symbol;
     return symbol;
   }
 
@@ -61,6 +75,17 @@ class EnclosedSymbolTable extends SymbolTable {
 
     if (!obj && this.outer) {
       obj = this.outer.resolve(name);
+
+      if (obj) {
+        if (
+          obj.scope === SymbolScope.GlobalScope ||
+          obj.scope === SymbolScope.BuiltinScope
+        )
+          return obj;
+
+        const free = this.defineFree(obj);
+        return free;
+      }
     }
 
     return obj;
