@@ -162,10 +162,11 @@ export default class Compiler {
         }
         break;
       case node instanceof ast.LetStatement:
-        this.compileNode((node as ast.LetStatement).value);
         const symbol = this.symbolTable.define(
           (node as ast.LetStatement).name.value
         );
+        this.compileNode((node as ast.LetStatement).value);
+
         if (symbol.scope === SymbolScope.GlobalScope) {
           this.emit(OpCode.OpSetGlobal, [symbol.index]);
         } else {
@@ -226,6 +227,10 @@ export default class Compiler {
       case node instanceof ast.FunctionLiteral:
         const fnNode = node as ast.FunctionLiteral;
         this.enterScope();
+
+        if (fnNode.name) {
+          this.symbolTable.defineFunctionName(fnNode.name);
+        }
 
         fnNode.parameters.forEach((p) => this.symbolTable.define(p.value));
 
@@ -378,6 +383,9 @@ export default class Compiler {
         break;
       case SymbolScope.FreeScope:
         this.emit(OpCode.OpGetFree, [s.index]);
+        break;
+      case SymbolScope.FunctionScope:
+        this.emit(OpCode.OpCurrentClosure);
         break;
     }
   }
