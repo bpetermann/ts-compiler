@@ -1028,3 +1028,158 @@ it('should compile builtins', () => {
     );
   });
 });
+
+it('should compile closures', () => {
+  const expected: {
+    instruction: Instruction[];
+    constants: Object[];
+    input: string;
+  }[] = [
+    // {
+    //   instruction: [
+    //     Code.make(OpCode.OpClosure, [1, 0]),
+    //     Code.make(OpCode.OpPop),
+    //   ],
+    //   constants: [
+    //     new obj.CompiledFunction(
+    //       Instruction.concatAll([
+    //         Code.make(OpCode.OpGetFree, [0]),
+    //         Code.make(OpCode.OpGetLocal, [0]),
+    //         Code.make(OpCode.OpAdd),
+    //         Code.make(OpCode.OpReturnValue),
+    //       ])
+    //     ),
+    //     new obj.CompiledFunction(
+    //       Instruction.concatAll([
+    //         Code.make(OpCode.OpGetLocal, [0]),
+    //         Code.make(OpCode.OpClosure, [0, 1]),
+    //         Code.make(OpCode.OpReturnValue),
+    //       ])
+    //     ),
+    //   ],
+    //   input: `
+    //   fn(a) {
+    //       fn(b) {
+    //           a + b
+    //       }
+    //   }
+    //   `,
+    // },
+    {
+      instruction: [
+        Code.make(OpCode.OpClosure, [2, 0]),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [
+        new obj.CompiledFunction(
+          Instruction.concatAll([
+            Code.make(OpCode.OpGetFree, [0]),
+            Code.make(OpCode.OpGetFree, [1]),
+            Code.make(OpCode.OpAdd),
+            Code.make(OpCode.OpGetLocal, [0]),
+            Code.make(OpCode.OpAdd),
+            Code.make(OpCode.OpReturnValue),
+          ])
+        ),
+        new obj.CompiledFunction(
+          Instruction.concatAll([
+            Code.make(OpCode.OpGetFree, [0]),
+            Code.make(OpCode.OpGetLocal, [0]),
+            Code.make(OpCode.OpClosure, [0, 2]),
+            Code.make(OpCode.OpReturnValue),
+          ])
+        ),
+        new obj.CompiledFunction(
+          Instruction.concatAll([
+            Code.make(OpCode.OpGetLocal, [0]),
+            Code.make(OpCode.OpClosure, [1, 1]),
+            Code.make(OpCode.OpReturnValue),
+          ])
+        ),
+      ],
+      input: `
+      fn(a) {
+          fn(b) {
+              fn(c) {
+                  a + b + c
+              }
+          }
+      };
+      `,
+    },
+    {
+      instruction: [
+        Code.make(OpCode.OpConstant, [0]),
+        Code.make(OpCode.OpSetGlobal, [0]),
+        Code.make(OpCode.OpClosure, [6, 0]),
+        Code.make(OpCode.OpPop),
+      ],
+      constants: [
+        new obj.Integer(55),
+        new obj.Integer(66),
+        new obj.Integer(77),
+        new obj.Integer(88),
+
+        new obj.CompiledFunction(
+          Instruction.concatAll([
+            Code.make(OpCode.OpConstant, [3]),
+            Code.make(OpCode.OpSetLocal, [0]),
+            Code.make(OpCode.OpGetGlobal, [0]),
+            Code.make(OpCode.OpGetFree, [0]),
+            Code.make(OpCode.OpAdd),
+            Code.make(OpCode.OpGetFree, [1]),
+            Code.make(OpCode.OpAdd),
+            Code.make(OpCode.OpGetLocal, [0]),
+            Code.make(OpCode.OpAdd),
+            Code.make(OpCode.OpReturnValue),
+          ])
+        ),
+        new obj.CompiledFunction(
+          Instruction.concatAll([
+            Code.make(OpCode.OpConstant, [2]),
+            Code.make(OpCode.OpSetLocal, [0]),
+            Code.make(OpCode.OpGetFree, [0]),
+            Code.make(OpCode.OpGetLocal, [0]),
+            Code.make(OpCode.OpClosure, [4, 2]),
+            Code.make(OpCode.OpReturnValue),
+          ])
+        ),
+        new obj.CompiledFunction(
+          Instruction.concatAll([
+            Code.make(OpCode.OpConstant, [1]),
+            Code.make(OpCode.OpSetLocal, [0]),
+            Code.make(OpCode.OpGetLocal, [0]),
+            Code.make(OpCode.OpClosure, [5, 1]),
+            Code.make(OpCode.OpReturnValue),
+          ])
+        ),
+      ],
+      input: `
+      let global = 55;
+
+      fn() {
+          let a = 66;
+
+          fn() {
+              let b = 77;
+
+              fn() {
+                  let c = 88;
+
+                  global + a + b + c;
+              }
+          }
+      }
+      `,
+    },
+  ];
+
+  expected.forEach(({ instruction, constants, input }) => {
+    const actual = compileExpression(input);
+
+    expect(helper.testConstants(constants, actual.constants)).toEqual(true);
+    expect(helper.testInstructions(instruction, actual.instruction)).toEqual(
+      true
+    );
+  });
+});

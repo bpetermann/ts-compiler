@@ -237,8 +237,11 @@ export default class Compiler {
         if (!this.lastInstructionIs(OpCode.OpReturnValue))
           this.emit(OpCode.OpReturn);
 
+        const freeSymbols = this.symbolTable.freeSymbols;
         const numLocals = this.symbolTable.numDefinitions;
         const instruction = this.leaveScope();
+
+        freeSymbols.forEach((s) => this.loadSymbol(s));
 
         const compiledFn = new obj.CompiledFunction(
           instruction,
@@ -246,7 +249,7 @@ export default class Compiler {
           fnNode.parameters.length
         );
         const fnIndex = this.addConstant(compiledFn);
-        this.emit(OpCode.OpClosure, [fnIndex, 0]);
+        this.emit(OpCode.OpClosure, [fnIndex, freeSymbols.length]);
         break;
       case node instanceof ast.CallExpression:
         const callNode = node as ast.CallExpression;
@@ -372,6 +375,9 @@ export default class Compiler {
         break;
       case SymbolScope.BuiltinScope:
         this.emit(OpCode.OpGetBuiltin, [s.index]);
+        break;
+      case SymbolScope.FreeScope:
+        this.emit(OpCode.OpGetFree, [s.index]);
         break;
     }
   }
