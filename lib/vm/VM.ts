@@ -206,11 +206,20 @@ export default class VM {
         case OpCode.OpClosure:
           {
             const constIndex = ins.getUint16(ip + 1);
-            const _ = ins.getUint8(ip + 3);
+            const numFree = ins.getUint8(ip + 3);
             this.currentFrame().ip += 3;
 
-            this.pushClosure(constIndex);
+            this.pushClosure(constIndex, numFree);
           }
+          break;
+        case OpCode.OpGetFree:
+          const freeIndex = ins.getUint8(ip + 1);
+          this.currentFrame().ip += 1;
+
+          const currentClosure = this.currentFrame().cl;
+
+          this.push(currentClosure.free[freeIndex]);
+
           break;
         case OpCode.OpPop:
           this.pop();
@@ -219,12 +228,18 @@ export default class VM {
     }
   }
 
-  pushClosure(constIndex: number) {
+  pushClosure(constIndex: number, numFree: number) {
     const constant = this.constants[constIndex];
     if (!(constant instanceof obj.CompiledFunction))
       throw new Error(`not a function: ${constant}`);
 
-    const closure = new obj.Closure(constant);
+    const free: Object[] = [];
+    for (let i = 0; i < numFree; i++) {
+      free[i] = this.stack[this.stackPointer - numFree + i];
+    }
+    this.stackPointer = this.stackPointer - numFree;
+
+    const closure = new obj.Closure(constant, free);
     this.push(closure);
   }
 

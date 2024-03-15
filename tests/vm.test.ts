@@ -502,8 +502,6 @@ it('should handle builtin functions', () => {
     [`len("")`, new obj.Integer(0)],
     [`len("four")`, new obj.Integer(4)],
     [`len("hello world")`, new obj.Integer(11)],
-    // Works, but logs to the console
-    // [`log("hello", "world!")`, new obj.Null()],
     [`len("one", "two")`, new obj.Error({ type: 'args', msg: '2' })],
     [`len([1, 2, 3])`, new obj.Integer(3)],
     [`len([])`, new obj.Integer(0)],
@@ -529,6 +527,71 @@ it('should handle builtin functions', () => {
         msg: 'push',
         got: 'INTEGER',
       }),
+    ],
+  ];
+
+  tests.forEach((test) => {
+    const [actual, expected] = test;
+
+    const stackElement = getStackTop(actual);
+
+    const result = testExpectedObject(expected, stackElement);
+    expect(result).toEqual(true);
+  });
+});
+
+it('should handle closures', () => {
+  const tests: [string, Object][] = [
+    [
+      `
+    let newClosure = fn(a) {
+        fn() { a; };
+    };
+    let closure = newClosure(99);
+    closure();
+    `,
+      new obj.Integer(99),
+    ],
+    [
+      `
+    let newAdderOuter = fn(a, b) {
+        let c = a + b;
+        fn(d) {
+            let e = d + c;
+            fn(f) { e + f; };
+        };
+    };
+    let newAdderInner = newAdderOuter(1, 2)
+    let adder = newAdderInner(3);
+    adder(8);
+    `,
+      new obj.Integer(14),
+    ],
+    [
+      `
+    let a = 1;
+    let newAdderOuter = fn(b) {
+        fn(c) {
+            fn(d) { a + b + c + d };
+        };
+    };
+    let newAdderInner = newAdderOuter(2)
+    let adder = newAdderInner(3);
+    adder(8);
+    `,
+      new obj.Integer(14),
+    ],
+    [
+      `
+        let newClosure = fn(a, b) {
+            let one = fn() { a; };
+            let two = fn() { b; };
+            fn() { one() + two(); };
+        };
+        let closure = newClosure(9, 90);
+        closure();
+        `,
+      new obj.Integer(99),
     ],
   ];
 
