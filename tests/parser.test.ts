@@ -175,3 +175,19 @@ it('should parse hash literals with expressions', () => {
     '{one: (0 + 1), two: (10 - 8), three: (15 / 5)}'
   );
 });
+
+it('should function literals with name', () => {
+  const name = 'myFunction';
+  const actual = parse(`let ${name} = fn() { };`);
+  const stmt = actual.statements[0] as ast.ExpressionStatement;
+
+  if (!(stmt instanceof ast.LetStatement))
+    throw new Error(`statement is not ast.LetStatement. got=${stmt}`);
+
+  const fn = (stmt as ast.LetStatement).value;
+
+  if (!(fn instanceof ast.FunctionLiteral))
+    throw new Error(`statement value is not ast.LetStatement. got=${fn}`);
+
+  expect(fn.name).toEqual(name);
+});

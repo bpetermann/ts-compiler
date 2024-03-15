@@ -124,6 +124,8 @@ class IfExpression implements Expression {
 }
 
 class FunctionLiteral implements Expression {
+  name?: string;
+
   constructor(
     public token: Token,
     public parameters: Identifier[],
