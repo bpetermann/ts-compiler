@@ -137,11 +137,17 @@ export default class Parser {
       return null;
     }
 
+    const stmt = new ast.LetStatement(token, name, value);
+
+    if (value instanceof ast.FunctionLiteral) {
+      (value as ast.FunctionLiteral).name = stmt.name.value;
+    }
+
     if (isTokenType(this.peekToken, TokenType.SEMICOLON)) {
       this.nextToken();
     }
 
-    return new ast.LetStatement(token, name, value);
+    return stmt;
   }
 
   parseReturnStatement(): ast.ReturnStatement | null {
@@ -395,10 +401,11 @@ export default class Parser {
       if (
         !isTokenType(this.peekToken, TokenType.RBRACE) &&
         !this.expectPeek(TokenType.COMMA)
-      )  return null
+      )
+        return null;
     }
 
-    if (!this.expectPeek(TokenType.RBRACE)) return null
+    if (!this.expectPeek(TokenType.RBRACE)) return null;
 
     return new ast.HashLiteral(token, pairs);
   }
