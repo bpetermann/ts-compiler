@@ -3,6 +3,7 @@ enum SymbolScope {
   LocalScope = 'LOCAL',
   BuiltinScope = 'BUILTIN',
   FreeScope = 'FREE',
+  FunctionScope = 'FUNCTION',
 }
 
 class SymbolTable {
@@ -33,6 +34,12 @@ class SymbolTable {
 
   defineBuiltin(index: number, name: string): Symbol {
     const symbol = new Symbol(name, SymbolScope.BuiltinScope, index);
+    this._store[name] = symbol;
+    return symbol;
+  }
+
+  defineFunctionName(name: string): Symbol {
+    const symbol = new Symbol(name, SymbolScope.FunctionScope, 0);
     this._store[name] = symbol;
     return symbol;
   }

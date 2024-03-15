@@ -207,3 +207,26 @@ it('should not automatically mark every symbol as free', () => {
     expect(secondLocal.resolve(name)).toEqual(undefined);
   });
 });
+
+it('should resolve function scopes', () => {
+  const global = new SymbolTable();
+  global.defineFunctionName('a');
+
+  [
+    { name: 'a', symbol: new Symbol('a', SymbolScope.FunctionScope, 0) },
+  ].forEach(({ name, symbol }) => {
+    expect(global.resolve(name)).toEqual(symbol);
+  });
+});
+
+it('should resolve function scopes', () => {
+  const global = new SymbolTable();
+  global.defineFunctionName('a');
+  global.define('a');
+
+  [{ name: 'a', symbol: new Symbol('a', SymbolScope.GlobalScope, 0) }].forEach(
+    ({ name, symbol }) => {
+      expect(global.resolve(name)).toEqual(symbol);
+    }
+  );
+});
