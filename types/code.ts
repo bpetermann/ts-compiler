@@ -28,6 +28,7 @@ export enum OpCode {
   OpGetBuiltin,
   OpClosure,
   OpGetFree,
+  OpCurrentClosure 
 }
 
 export type Definition = { name: string; operandWidths: number[] };
