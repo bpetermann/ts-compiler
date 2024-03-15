@@ -604,3 +604,62 @@ it('should handle closures', () => {
     expect(result).toEqual(true);
   });
 });
+
+it('should recursive closures', () => {
+  const tests: [string, Object][] = [
+    [
+      `
+        let countDown = fn(x) {
+            if (x == 0) {
+                return 0;
+            } else {
+                countDown(x - 1);
+            }
+        };
+        countDown(1);
+        `,
+      new obj.Integer(0),
+    ],
+    [
+      `
+        let countDown = fn(x) {
+            if (x == 0) {
+                return 0;
+            } else {
+                countDown(x - 1);
+            }
+        };
+        let wrapper = fn() {
+            countDown(1);
+        };
+        wrapper();
+        `,
+      new obj.Integer(0),
+    ],
+    [
+      `
+        let wrapper = fn() {
+            let countDown = fn(x) {
+                if (x == 0) {
+                    return 0;
+                } else {
+                    countDown(x - 1);
+                }
+            };
+            countDown(1);
+        };
+        wrapper();
+        `,
+      new obj.Integer(0),
+    ],
+  ];
+
+  tests.forEach((test) => {
+    const [actual, expected] = test;
+
+    const stackElement = getStackTop(actual);
+
+    const result = testExpectedObject(expected, stackElement);
+    expect(result).toEqual(true);
+  });
+});

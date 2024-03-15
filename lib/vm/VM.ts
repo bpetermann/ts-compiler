@@ -221,6 +221,12 @@ export default class VM {
           this.push(currentClosure.free[freeIndex]);
 
           break;
+        case OpCode.OpCurrentClosure:
+          {
+            const currentClosure = this.currentFrame().cl;
+            this.push(currentClosure);
+          }
+          break;
         case OpCode.OpPop:
           this.pop();
           break;
