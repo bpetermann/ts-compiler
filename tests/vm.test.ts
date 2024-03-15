@@ -605,7 +605,7 @@ it('should handle closures', () => {
   });
 });
 
-it('should recursive closures', () => {
+it('should handle recursive closures', () => {
   const tests: [string, Object][] = [
     [
       `
