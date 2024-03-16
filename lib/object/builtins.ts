@@ -162,6 +162,20 @@ export const builtins: { name: string; builtin: obj.Builtin }[] = [
       return new obj.String(args[0].value.toLowerCase());
     }),
   },
+  {
+    name: 'clock',
+    builtin: new obj.Builtin((): null => {
+      console.time();
+      return null;
+    }),
+  },
+  {
+    name: 'clockEnd',
+    builtin: new obj.Builtin((): null => {
+      console.timeEnd();
+      return null;
+    }),
+  },
 ];
 
 export const getBuiltinByName = (name: string): obj.Builtin | null => {

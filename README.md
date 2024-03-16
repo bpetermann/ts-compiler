@@ -1,8 +1,6 @@
 # TypeScript Compiler
 
-A TypeScript compiler for the monkey programming language.
-
-Based on the excellent book ["Writing An Compiler In Go"](https://compilerbook.com/)
+A TypeScript compiler for the monkey programming language, based on the excellent book ["Writing An Compiler In Go"](https://compilerbook.com/)
 
 ## ⚙️ Installation
 
@@ -58,8 +56,8 @@ Example of closures:
 
 ```js
 let newClosure = fn(a) {
-    fn() { a; };
-    };
+  fn() { a; };
+  };
 let closure = newClosure(99);
 closure();
 ```
